@@ -1,0 +1,166 @@
+I want you to build a complete clinic management system called "SIA" (سِيَا) as a web app with the following specifications:
+
+## 🛠 TECHNICAL STACK
+- React 18+ with TypeScript
+- Vite as the build tool
+- Tailwind CSS for styling
+- Shadcn/ui for UI components
+- React Query (TanStack Query) for data fetching
+- Zustand for state management
+- Axios for API calls with interceptors
+- React Hook Form + Zod for form validation
+- React Router DOM v6 for routing
+- Framer Motion for animations
+- Recharts for charts
+- react-hot-toast for notifications
+- react-to-print for prescription printing
+- fuse.js for smart search
+- @hello-pangea/dnd for drag-and-drop
+- socket.io-client for real-time updates
+- i18next for Arabic (RTL) support
+- Dexie for IndexedDB (offline mode)
+
+## 🎨 DESIGN REQUIREMENTS (No existing design - create from scratch)
+
+### Visual Identity (Medical Theme)
+- **Primary colors:**
+  - Primary: #0A7E8C (Teal)
+  - Secondary: #1A3A4A (Dark Blue)
+  - Accent: #2ECC71 (Emerald)
+  - Danger: #E74C3C (Red)
+  - Warning: #F39C12 (Orange)
+  - Background: #F8FAFC
+  - Card: #FFFFFF
+  - Sidebar: #0F2A36
+
+### Typography
+- Headings: 'Tajawal', sans-serif (for Arabic)
+- Body: 'Cairo', sans-serif
+- Text sizes: text-3xl font-bold → text-xl font-semibold → text-base → text-sm
+
+### Features Required
+- Full RTL support (Arabic language)
+- Dark Mode with Tailwind dark class (toggle in Navbar, saved in localStorage)
+- Fully responsive (Mobile-First: works on phone, tablet, desktop)
+- Skeleton loaders while data loads
+- Toast notifications for success/error messages
+
+---
+
+## 🧩 REQUIRED MODULES
+
+### 1. Authentication Module
+- **Login Page:** Email + Password, with show/hide password toggle, primary button, "Create Account" and "Forgot Password" links
+- **Register Page:** For patients only (name, email, mobile, password, confirm password)
+- **Role-based redirect:** Admin → /admin, Doctor → /doctor, Receptionist → /reception, Patient → /patient
+- **Protected Routes:** All pages require authentication. Role-based access control (RBAC)
+- **Zustand store:** For user data (authStore)
+- **Axios interceptors:** For JWT token management in localStorage
+
+---
+
+### 2. Reception Module
+**2.1 Dashboard:**
+- 4 stat cards in one row: Total Patients (Users icon + count), Waiting (Clock + count), Done (CheckCircle + count), Revenue (DollarSign + amount)
+- Peak Hours Chart (Recharts)
+- Top Diagnoses Chart (Recharts)
+- List of last 5 registered patients
+
+**2.2 Add Patient Form:**
+- 2 columns on desktop, 1 on mobile
+- Fields: Booking Type (Online/Cash/Instapay - radio buttons), Full Name (required), Mobile (required + Egyptian number validation), Age (required), Priority (Normal/Urgent/Critical with colors), Visit Type (New/Follow-up), Exam Type (Clinic/Home/Online), Notes (optional)
+- Buttons: "Save Patient" (primary) and "Cancel" (secondary)
+- "Search Patient" button at top
+
+**2.3 Queue Management:**
+- Search bar to filter by name or mobile
+- Patient cards: priority icon (🚨 Critical Red, ⚠️ Urgent Orange, Normal Blue), Name (bold), age, mobile, wait time
+- "Done" (green) and "Cancel" (red) buttons
+- Alerts for allergies/chronic diseases shown as small Alerts
+
+**2.4 TV Mode (Optional):**
+- Appears if `ENABLE_TV_MODE = true` in config file
+- Full screen display, dark blue gradient background
+- "SIA Clinic - Queue List" title in large white text
+- Patient names in 24px+ font with numbers and wait times
+- Auto-refresh every 30 seconds
+
+---
+
+### 3. Doctor Module
+**3.1 Doctor Queue:**
+- Doctor's assigned patients sorted by priority
+- Clickable patient cards (opens patient file)
+- Small stats: Patients count, Prescriptions count, Revenue
+
+**3.2 Active Patient Card:**
+- Right: Patient info (name, age, mobile, visit number)
+- Left: Alerts (allergies, chronic diseases) with warning colors
+- Below: Visit history and previous prescriptions
+
+**3.3 Prescription Builder (MOST IMPORTANT):**
+- Top: Patient data + alerts
+- Middle: Diagnosis Input + Text-to-Speech button (Web Speech API, Arabic language support)
+- Bottom (Drugs):
+  - **Smart Autocomplete:** Search field using fuse.js - triggers after typing first 3 letters
+  - Filter by drug form: Tablet, Syrup, Ointment, Injection, Spray, Capsule
+  - 4 Selectors: Drug Form, Dosage, Duration, Unit
+  - "➕ Add Drug" button
+  - Added drugs list: Chips with delete button (X)
+- Instant alerts: Drug interactions or allergies show Red Alert
+- Quick Templates: Small buttons for common cases (Cold, Blood Pressure, Diabetes...)
+- Action buttons: "💾 Save & Print" (primary), "💊 Send to Pharmacy" (green - appears if pharmacy enabled), "📅 Follow-up" (secondary)
+
+**3.4 Prescription Preview:**
+- Medical paper design with clinic logo, doctor info, patient info, diagnosis, drug table, notes, QR Code, Prescription Code
+- Print functionality using react-to-print
+
+---
+
+### 4. Patient Module
+**4.1 Patient Search:**
+- Large input with search icon and primary button
+- Results displayed as cards
+
+**4.2 Patient Profile:**
+- Right: Avatar with first letter, name (large bold), age, mobile, medical data (chronic diseases, allergies)
+- Left: 4 stat numbers (Total Visits, First Visit, Last Visit, Top Diagnosis)
+- Below: Prescription history with View/Reorder buttons
+- Button: "📅 Follow-up Reminder"
+
+**4.3 Prescription History:**
+- Table with Date, Diagnosis, Drug Count, Status
+- View and Reorder buttons
+
+**4.4 Patient Analytics:**
+- 4 stat cards, monthly visit distribution chart, diagnosis distribution pie chart
+
+**4.5 Follow-up Reminder:**
+- Choice buttons: Tomorrow, Week, Month, Custom
+- List of upcoming reminders
+
+---
+
+### 5. AI Agent Module
+**5.1 Chat Interface:**
+- WhatsApp-like design: assistant name + photo at top, chat bubbles (AI = light blue, user = white), input + send button + Quick Replies at bottom
+
+**5.2 Knowledge Base:**
+- Clinic info: Name, Address, Phone, Working Hours
+- Doctors info: Name, Specialty, Experience
+- Services and prices
+- 20+ FAQs
+
+---
+
+### 6. Pharmacy Module (Optional)
+- Appears if `ENABLE_PHARMACY = true` in config
+- Incoming Prescriptions list
+- QR Scanner for quick access
+- Prescription Details view
+- Inventory Management (drug list with quantities, search/filter, stock status alerts)
+- Dispensed History with revenue tracking
+
+---
+
+## 📂 PROJECT STRUCTURE
