@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "سيا",
+    "tagline": "نظام إدارة عيادات ذكي"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "queue": "قائمة الانتظار",
+    "doctorQueue": "قائمة الطبيب",
+    "patients": "المرضى",
+    "prescriptions": "الروشتات",
+    "aiAgent": "المساعد الذكي",
+    "booking": "الحجز أونلاين",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "loginSubtitle": "أهلاً بعودتك، سجّل دخولك لمتابعة عملك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "noAccount": "ليس لديك حساب؟",
+    "createAccount": "إنشاء حساب جديد",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "registerTitle": "إنشاء حساب جديد",
+    "fullName": "الاسم الكامل",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "registerButton": "إنشاء الحساب",
+    "haveAccount": "لديك حساب بالفعل؟"
+  },
+  "common": {
+    "search": "بحث",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "noData": "لا توجد بيانات متاحة",
+    "loading": "جارٍ التحميل..."
+  }
+}

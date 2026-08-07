@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "SIA",
+    "tagline": "Smart Clinic Management System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "queue": "Queue",
+    "doctorQueue": "Doctor Queue",
+    "patients": "Patients",
+    "prescriptions": "Prescriptions",
+    "aiAgent": "AI Agent",
+    "booking": "Online Booking",
+    "logout": "Logout"
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "loginSubtitle": "Welcome back, log in to continue",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create a new account",
+    "forgotPassword": "Forgot password?",
+    "registerTitle": "Create a new account",
+    "fullName": "Full name",
+    "confirmPassword": "Confirm password",
+    "registerButton": "Register",
+    "haveAccount": "Already have an account?"
+  },
+  "common": {
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noData": "No data available",
+    "loading": "Loading..."
+  }
+}
