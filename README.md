@@ -13,109 +13,44 @@
 
 ---
 
-## 🛠️ Tech Stack
-
-### Frontend Technologies
-
-| التقنية | الإصدار |
-|---------|---------|
-| **React** | 18.3.1 |
-| **TypeScript** | 5.9.3 |
-| **Vite** | 5.4.21 |
-| **Tailwind CSS** | 3.4.19 |
-| **Shadcn/ui** | (أحدث إصدار) |
-| **JavaScript** | ES6+ |
-
-### State Management & Data Fetching
-
-| التقنية | الإصدار |
-|---------|---------|
-| **Zustand** | 4.5.7 |
-| **React Query** | 5.56.2 |
-| **Axios** | 1.7.7 |
-
-### Forms & Validation
-
-| التقنية | الإصدار |
-|---------|---------|
-| **React Hook Form** | 7.53.0 |
-| **Zod** | 3.23.8 |
-
-### Development Tools
-
-| التقنية | الإصدار |
-|---------|---------|
-| **Node.js** | v20+ |
-| **pnpm** | (أحدث إصدار) |
-| **ESLint** | 9.10.0 |
-| **PostCSS** | 8.4.45 |
-| **Git** | - |
-
-### Deployment & Hosting
-
-| التقنية | الإصدار |
-|---------|---------|
-| **Vercel** | (للنشر) |
-| **GitHub** | (للكود) |
-
----
-
 ## ✨ Features
 
 ### 🔐 Authentication & Security
-- تسجيل دخول وإشتراك (Login/Register)
-- حماية الصفحات (Protected Routes)
-- صلاحيات حسب الدور (RBAC): Admin, Doctor, Receptionist, Patient
-- Zustand لإدارة الجلسة
+- **Login & Register** with email/password (mock authentication for now)
+- **Protected Routes** – only authenticated users can access dashboards
+- **Role-Based Access Control (RBAC)** – Admin, Doctor, Receptionist, Patient
+- **Session persistence** using Zustand + localStorage
 
-### 👨‍⚕️ Doctor Dashboard
-- قائمة انتظار المرضى
-- كتابة الروشتات (Prescription Builder)
-- البحث عن الأدوية (Autocomplete)
-- معاينة الروشتة مع QR Code
-- Text-to-Speech (قراءة التشخيص)
+### 🏥 Reception Module
+- **Dashboard** – real‑time stats (total patients, waiting, done, revenue)
+- **Add Patient** – form with booking type, priority, visit/exam type, and notes
+- **Queue Management** – search, priority icons (Critical 🚨 / Urgent ⚠️), Done / Cancel actions
+- **TV Mode** *(optional)* – full‑screen waiting room display
 
-### 🏥 Receptionist Dashboard
-- لوحة تحكم بإحصائيات العيادة
-- إضافة مرضى جدد
-- إدارة قائمة الانتظار
-- شاشة عرض (TV Mode) - اختياري
+### 👨‍⚕️ Doctor Module
+- **Doctor Queue** – patient list sorted by priority with quick stats
+- **Prescription Builder** – diagnosis with Text‑to‑Speech, smart drug autocomplete (fuse.js), dosage/duration/unit selectors, quick templates (cold, blood pressure, diabetes)
+- **Prescription Preview** – printable medical‑style paper with QR code placeholder
+- **Send to Pharmacy** *(optional)* – mock action for future integration
 
 ### 👤 Patient Module
-- ملف المريض الشخصي
-- تاريخ الروشتات
-- تحليلات الزيارات
-- تذكير المتابعة
+- **Patient Search** – search by name or mobile
+- **Patient Profile** – avatar, basic info, medical history, chronic diseases & allergies
+- **Visit Analytics** – total visits, first/last visit, top diagnosis, empty charts
+- **Follow‑up Reminder** – choose tomorrow, week, month, or custom date
 
-### 🤖 AI Agent (واجهة)
-- واجهة محادثة (Chat Interface)
-- أزرار سريعة (Quick Replies)
-- ردود وهمية مؤقتة (Mock Responses)
+### 🤖 AI Agent (Chat Interface – Frontend only)
+- **WhatsApp‑like chat UI** – messages, typing indicator, quick replies
+- **Mock responses** – keyword‑based knowledge base (prices, doctors, working hours, booking link)
+- **Ready for real AI** – structure designed to plug in Claude API later
 
-### 📱 Modern UI/UX
-- تصميم متجاوب (Responsive) (موبايل، تابلت، ديسكتوب)
-- دعم RTL (اللغة العربية)
-- Dark Mode
-- Skeleton Loaders
-- Toast Notifications
+### 📅 Online Booking (Public)
+- **Public route** – `/book`, no login required
+- **Patient form** – name, mobile (Egyptian validation), age, exam type, date/time picker, payment method (Cash / Instapay)
+- **Success toast** – mock booking confirmation
 
----
-
-## 🚀 تشغيل المشروع محلياً
-
-### المتطلبات (Prerequisites)
-- Node.js v20 أو أعلى
-- pnpm
-
-### خطوات التشغيل
-
-```bash
-# 1. استنساخ المشروع
-git clone https://github.com/shahdnasr7543567-byte/SIA-Clinic.git
-cd SIA-Clinic
-
-# 2. تثبيت الحزم
-pnpm install
-
-# 3. تشغيل الموقع
-pnpm run dev
+### 🎨 Modern UI/UX
+- **Full RTL support** – Arabic language with `i18next`
+- **Dark Mode** – toggle in navbar, persists in `localStorage`
+- **Responsive** – mobile‑first, works on tablets and desktops
+- **Skeleton loaders & toast notifications** – smooth user feedback
