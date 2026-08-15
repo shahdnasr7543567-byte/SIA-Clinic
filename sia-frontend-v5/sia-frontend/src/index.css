@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;      /* #F8FAFC */
+    --foreground: 200 45% 15%;      /* dark blue-ish text */
+
+    --card: 0 0% 100%;              /* #FFFFFF */
+    --card-foreground: 200 45% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 45% 15%;
+
+    --muted: 210 30% 94%;
+    --muted-foreground: 200 15% 40%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 187 82% 29%;            /* teal ring to match primary */
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 200 35% 8%;        /* deep blue-black, matches the brand's dark blue */
+    --foreground: 210 30% 92%;
+
+    --card: 200 30% 12%;
+    --card-foreground: 210 30% 92%;
+
+    --popover: 200 30% 12%;
+    --popover-foreground: 210 30% 92%;
+
+    --muted: 200 20% 18%;
+    --muted-foreground: 210 15% 65%;
+
+    --border: 200 20% 22%;
+    --input: 200 20% 22%;
+    --ring: 187 82% 40%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
+/* Skeleton loading shimmer used across empty/loading states */
+@layer utilities {
+  .skeleton {
+    @apply relative overflow-hidden bg-muted rounded-md;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.55),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
