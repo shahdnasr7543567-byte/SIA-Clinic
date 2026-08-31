@@ -11,15 +11,10 @@ export interface PrescriptionDrugLine {
   lineId: string;
   drug: Drug;
   dosage: string;
+  frequency: string;
   duration: string;
   durationUnit: "days" | "weeks" | "months";
-}
-
-export interface PrescriptionTemplate {
-  id: string;
-  label: string;
-  diagnosis: string;
-  drugIds: string[];
+  instructions?: string;
 }
 
 export interface Prescription {
@@ -30,4 +25,4 @@ export interface Prescription {
   drugs: PrescriptionDrugLine[];
   notes?: string;
   createdAt: string;
-}
+} 

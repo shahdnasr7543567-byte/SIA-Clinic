@@ -2,6 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -11,17 +12,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { receptionApi } from "@/api/endpoints/reception.api";
+import type { CreatePatientPayload } from "@/types/patient";
 
+// Matches the real POST /reception/patients body exactly — no bookingType or
+// visitType (the backend doesn't have those fields), gender/examType added.
 const addPatientSchema = z.object({
-  bookingType: z.enum(["walkIn", "online", "phone"], { message: "اختر نوع الحجز" }),
   name: z.string().min(2, { message: "اسم المريض قصير جدًا" }),
   mobile: z
     .string()
     .regex(/^01[0125][0-9]{8}$/, { message: "رقم موبايل مصري غير صحيح" }),
   age: z.coerce.number().min(0, { message: "السن غير صحيح" }).max(120),
-  priority: z.enum(["normal", "urgent", "emergency"], { message: "اختر الأولوية" }),
-  visitType: z.enum(["new", "followUp"], { message: "اختر نوع الزيارة" }),
-  examType: z.enum(["clinic", "home", "online"], { message: "اختر نوع الكشف" }),
+  gender: z.enum(["male", "female"], { message: "اختر النوع" }),
+  priority: z.enum(["normal", "urgent", "critical"], { message: "اختر الأولوية" }),
+  examType: z.enum(["examination", "followup", "consultation"], { message: "اختر نوع الكشف" }),
   notes: z.string().optional(),
 });
 
@@ -29,6 +33,7 @@ type AddPatientForm = z.infer<typeof addPatientSchema>;
 
 export default function AddPatientPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -36,13 +41,21 @@ export default function AddPatientPage() {
     formState: { errors, isSubmitting },
   } = useForm<AddPatientForm>({ resolver: zodResolver(addPatientSchema) });
 
-  // TODO(step: backend integration): swap this for `receptionApi.addPatient(data)`
-  // (see src/api/endpoints/reception.api.ts) once a real backend exists, then
-  // push the new entry into the queue via React Query's cache.
-  const onSubmit = async (data: AddPatientForm) => {
-    await new Promise((r) => setTimeout(r, 500));
-    toast.success("تم إضافة المريض بنجاح");
-    navigate("/reception/queue");
+  const addPatientMutation = useMutation({
+    mutationFn: (payload: CreatePatientPayload) => receptionApi.addPatient(payload),
+    onSuccess: () => {
+      // the queue list is already polling, but invalidate so it refreshes immediately
+      queryClient.invalidateQueries({ queryKey: ["reception", "queue"] });
+      toast.success("تم إضافة المريض بنجاح");
+      navigate("/reception/queue");
+    },
+    onError: () => {
+      toast.error("حصل خطأ أثناء إضافة المريض، حاول تاني");
+    },
+  });
+
+  const onSubmit = (data: AddPatientForm) => {
+    addPatientMutation.mutate(data);
   };
 
   return (
@@ -60,25 +73,6 @@ export default function AddPatientPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label>نوع الحجز</Label>
-              <Controller
-                control={control}
-                name="bookingType"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger><SelectValue placeholder="اختر نوع الحجز" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="walkIn">حضور مباشر</SelectItem>
-                      <SelectItem value="online">حجز أونلاين</SelectItem>
-                      <SelectItem value="phone">حجز تليفوني</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.bookingType && <p className="text-xs text-danger">{errors.bookingType.message}</p>}
-            </div>
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">الاسم</Label>
               <Input id="name" placeholder="اسم المريض" {...register("name")} />
@@ -98,6 +92,24 @@ export default function AddPatientPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
+              <Label>النوع</Label>
+              <Controller
+                control={control}
+                name="gender"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">ذكر</SelectItem>
+                      <SelectItem value="female">أنثى</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.gender && <p className="text-xs text-danger">{errors.gender.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
               <Label>الأولوية</Label>
               <Controller
                 control={control}
@@ -108,30 +120,12 @@ export default function AddPatientPage() {
                     <SelectContent>
                       <SelectItem value="normal">عادي</SelectItem>
                       <SelectItem value="urgent">مستعجل</SelectItem>
-                      <SelectItem value="emergency">طارئ</SelectItem>
+                      <SelectItem value="critical">طارئ</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               {errors.priority && <p className="text-xs text-danger">{errors.priority.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label>نوع الزيارة</Label>
-              <Controller
-                control={control}
-                name="visitType"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger><SelectValue placeholder="اختر نوع الزيارة" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">كشف جديد</SelectItem>
-                      <SelectItem value="followUp">متابعة</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.visitType && <p className="text-xs text-danger">{errors.visitType.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -143,9 +137,9 @@ export default function AddPatientPage() {
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger><SelectValue placeholder="اختر نوع الكشف" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="clinic">عيادة</SelectItem>
-                      <SelectItem value="home">منزلي</SelectItem>
-                      <SelectItem value="online">أونلاين</SelectItem>
+                      <SelectItem value="examination">كشف</SelectItem>
+                      <SelectItem value="followup">إعادة</SelectItem>
+                      <SelectItem value="consultation">استشارة</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -162,8 +156,8 @@ export default function AddPatientPage() {
               <Button type="button" variant="outline" onClick={() => navigate(-1)}>
                 إلغاء
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "جارٍ الحفظ..." : "حفظ المريض"}
+              <Button type="submit" disabled={isSubmitting || addPatientMutation.isPending}>
+                {isSubmitting || addPatientMutation.isPending ? "جارٍ الحفظ..." : "حفظ المريض"}
               </Button>
             </div>
           </form>

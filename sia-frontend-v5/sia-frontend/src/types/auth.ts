@@ -6,14 +6,28 @@
 export type UserRole = "receptionist" | "doctor" | "admin";
 
 export interface AuthUser {
-  id: string;
+  _id: string;
+  clinicId: string;
   name: string;
   email: string;
   role: UserRole;
-  avatarUrl?: string;
+  phone: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  phone: string;
+  specialty?: string;
+  clinicCode: string;
 }

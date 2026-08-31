@@ -1,5 +1,6 @@
 import { apiClient } from "@/api/axiosClient";
-import type { Prescription } from "@/types/prescription";
+import type { Prescription, PrescriptionDrugLine } from "@/types/prescription";
+import type { Gender, Priority, ExamType } from "@/types/patient";
 
 export interface DoctorStats {
   patients: number;
@@ -9,8 +10,32 @@ export interface DoctorStats {
 
 export interface DoctorQueueEntry {
   id: string;
+  patientId: string;
   name: string;
   mobile: string;
+  age: number;
+  gender: Gender;
+  priority: Priority;
+  examType: ExamType;
+  queueNumber: number;
+  enteredAt: string;
+}
+
+export interface CreatePrescriptionPayload {
+  patientId: string;
+  queueId: string;
+  diagnosis: string;
+  drugs: {
+    name: string;
+    genericName: string;
+    form: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    unit: PrescriptionDrugLine["durationUnit"];
+    instructions?: string;
+  }[];
+  notes?: string;
 }
 
 export const doctorApi = {
@@ -18,7 +43,7 @@ export const doctorApi = {
 
   getQueue: () => apiClient.get<DoctorQueueEntry[]>("/doctor/queue").then((r) => r.data),
 
-  createPrescription: (payload: Omit<Prescription, "id" | "createdAt">) =>
+  createPrescription: (payload: CreatePrescriptionPayload) =>
     apiClient.post<Prescription>("/doctor/prescriptions", payload).then((r) => r.data),
 
   getPrescription: (id: string) =>
@@ -26,4 +51,4 @@ export const doctorApi = {
 
   sendToPharmacy: (prescriptionId: string) =>
     apiClient.post<void>(`/doctor/prescriptions/${prescriptionId}/send-to-pharmacy`).then((r) => r.data),
-};
+}; 
