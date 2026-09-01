@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Printer, CalendarClock, TriangleAlert } from "lucide-react";
 import { useDrugInteractionCheck } from "@/hooks/useDrugInteractionCheck";
@@ -13,14 +14,19 @@ import { DiagnosisField } from "@/components/doctor/DiagnosisField";
 import { DrugAutocomplete } from "@/components/doctor/DrugAutocomplete";
 import { DrugChipList } from "@/components/doctor/DrugChipList";
 import { PrescriptionPreview } from "@/components/doctor/PrescriptionPreview";
+import { doctorApi, type CreatePrescriptionPayload } from "@/api/endpoints/doctor.api";
 import type { PrescriptionDrugLine } from "@/types/prescription";
 
 export default function PrescriptionBuilderPage() {
   const [searchParams] = useSearchParams();
-  const patientId = searchParams.get("patient");
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [patientName, setPatientName] = useState("");
-  const [patientAge, setPatientAge] = useState<string>("");
+  const patientId = searchParams.get("patientId");
+  const queueId = searchParams.get("queueId");
+
+  const [patientName, setPatientName] = useState(searchParams.get("name") ?? "");
+  const [patientAge, setPatientAge] = useState<string>(searchParams.get("age") ?? "");
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
   const [drugs, setDrugs] = useState<PrescriptionDrugLine[]>([]);
@@ -37,14 +43,49 @@ export default function PrescriptionBuilderPage() {
     setDrugs((prev) => prev.filter((l) => l.lineId !== lineId));
   };
 
+  const createPrescriptionMutation = useMutation({
+    mutationFn: (payload: CreatePrescriptionPayload) => doctorApi.createPrescription(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["doctor", "queue"] });
+      toast.success("تم حفظ الروشتة");
+      handlePrint();
+      navigate("/doctor/queue");
+    },
+    onError: () => {
+      toast.error("حصل خطأ أثناء حفظ الروشتة، حاول تاني");
+    },
+  });
+
   const handleSaveAndPrint = () => {
     if (!patientName || !diagnosis) {
       toast.error("اكتب اسم المريض والتشخيص الأول");
       return;
     }
-    // TODO(step: backend integration): POST prescription, then print.
-    toast.success("تم حفظ الروشتة");
-    handlePrint();
+    if (!patientId || !queueId) {
+      toast.error("لازم تبدئي الكشف من قائمة الطبيب عشان يتحدد المريض صح");
+      return;
+    }
+    if (drugs.length === 0) {
+      toast.error("ضيفي دواء واحد على الأقل");
+      return;
+    }
+
+    createPrescriptionMutation.mutate({
+      patientId,
+      queueId,
+      diagnosis,
+      notes: notes || undefined,
+      drugs: drugs.map((line) => ({
+        name: line.drug.name,
+        genericName: line.drug.genericName,
+        form: line.drug.form,
+        dosage: line.dosage,
+        frequency: line.frequency,
+        duration: line.duration,
+        unit: line.durationUnit,
+        instructions: line.instructions,
+      })),
+    });
   };
 
   return (
@@ -96,16 +137,15 @@ export default function PrescriptionBuilderPage() {
         </Card>
 
         <div className="flex flex-wrap gap-2">
-          <Button onClick={handleSaveAndPrint}>
+          <Button onClick={handleSaveAndPrint} disabled={createPrescriptionMutation.isPending}>
             <Printer className="h-4 w-4" />
-            حفظ وطباعة
+            {createPrescriptionMutation.isPending ? "جارٍ الحفظ..." : "حفظ وطباعة"}
           </Button>
           <Button variant="outline">
             <CalendarClock className="h-4 w-4" />
             متابعة
           </Button>
         </div>
-        {/* NOTE: "إرسال للصيدلية" removed — Pharmacy module was cut from scope by team decision. */}
       </div>
 
       <div>
@@ -122,4 +162,4 @@ export default function PrescriptionBuilderPage() {
       </div>
     </div>
   );
-}
+} 

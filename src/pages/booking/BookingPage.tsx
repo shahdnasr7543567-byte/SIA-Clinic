@@ -13,14 +13,15 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { availableTimeSlots } from "@/data/timeSlots";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
+import { bookingApi } from "@/api/endpoints/booking.api";
 
 const todayIso = new Date().toISOString().split("T")[0];
 
 const bookingSchema = z.object({
-  name: z.string().min(2, { message: "الاسم قصير جدًا" }),
+  patientName: z.string().min(2, { message: "الاسم قصير جدًا" }),
   mobile: z.string().regex(/^01[0125][0-9]{8}$/, { message: "رقم موبايل مصري غير صحيح" }),
   age: z.coerce.number().min(0, { message: "السن غير صحيح" }).max(120),
-  examType: z.enum(["clinic", "home", "online"], { message: "اختر نوع الكشف" }),
+  examType: z.enum(["examination", "followup", "consultation"], { message: "اختر نوع الكشف" }),
   date: z
     .string()
     .min(1, { message: "اختر تاريخ الموعد" })
@@ -44,13 +45,14 @@ export default function BookingPage() {
   const selectedTime = watch("time");
   const selectedPayment = watch("paymentMethod");
 
-  // TODO(step: backend integration): swap for `bookingApi.create(data)`
-  // (see src/api/endpoints/booking.api.ts) — it's a public endpoint, no auth needed.
+  // Now calls the real public POST /bookings endpoint (no auth required).
   const onSubmit = async (data: BookingForm) => {
-    void data;
-    await new Promise((r) => setTimeout(r, 600));
-    toast.success("تم حجز موعدك بنجاح");
-    setSubmitted(true);
+    try {
+      await bookingApi.create(data);
+      setSubmitted(true);
+    } catch {
+      toast.error("حصل خطأ أثناء الحجز، حاول تاني");
+    }
   };
 
   return (
@@ -72,9 +74,9 @@ export default function BookingPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <Label htmlFor="name">الاسم</Label>
-                  <Input id="name" placeholder="اسمك بالكامل" {...register("name")} />
-                  {errors.name && <p className="text-xs text-danger">{errors.name.message}</p>}
+                  <Label htmlFor="patientName">الاسم</Label>
+                  <Input id="patientName" placeholder="اسمك بالكامل" {...register("patientName")} />
+                  {errors.patientName && <p className="text-xs text-danger">{errors.patientName.message}</p>}
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -99,9 +101,9 @@ export default function BookingPage() {
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger><SelectValue placeholder="اختر نوع الكشف" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="clinic">عيادة</SelectItem>
-                        <SelectItem value="home">منزلي</SelectItem>
-                        <SelectItem value="online">أونلاين</SelectItem>
+                        <SelectItem value="examination">كشف</SelectItem>
+                        <SelectItem value="followup">إعادة</SelectItem>
+                        <SelectItem value="consultation">استشارة</SelectItem>
                       </SelectContent>
                     </Select>
                   )}

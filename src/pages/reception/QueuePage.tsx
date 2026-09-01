@@ -6,17 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PatientQueueCard } from "@/components/shared/PatientQueueCard";
-import { useQueue } from "@/hooks/useReceptionData";
+import { useQueue, useUpdateQueueStatus } from "@/hooks/useReceptionData";
 
 export default function QueuePage() {
   const { data: queue, isLoading } = useQueue();
+  const updateStatus = useUpdateQueueStatus();
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     if (!queue) return [];
-    if (!search.trim()) return queue;
+    const waitingOnly = queue.filter((entry) => entry.status === "waiting");
+    if (!search.trim()) return waitingOnly;
     const q = search.trim().toLowerCase();
-    return queue.filter(
+    return waitingOnly.filter(
       (entry) => entry.patient.name.toLowerCase().includes(q) || entry.patient.mobile.includes(q)
     );
   }, [queue, search]);
@@ -52,7 +54,12 @@ export default function QueuePage() {
       ) : filtered.length > 0 ? (
         <div className="flex flex-col gap-3">
           {filtered.map((entry) => (
-            <PatientQueueCard key={entry.id} entry={entry} />
+            <PatientQueueCard
+              key={entry.id}
+              entry={entry}
+              onDone={(id) => updateStatus.mutate({ entryId: id, status: "done" })}
+              onCancel={(id) => updateStatus.mutate({ entryId: id, status: "cancelled" })}
+            />
           ))}
         </div>
       ) : (
@@ -63,4 +70,4 @@ export default function QueuePage() {
       )}
     </div>
   );
-}
+} 

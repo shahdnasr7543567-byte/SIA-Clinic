@@ -34,7 +34,8 @@ export function DrugChipList({ lines, onRemove }: DrugChipListProps) {
                 {line.drug.name} <span className="text-xs text-muted-foreground">({drugFormLabels[line.drug.form]})</span>
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {line.dosage} · {line.duration} {unitLabels[line.durationUnit]}
+                {line.dosage} · {line.frequency} · {line.duration} {unitLabels[line.durationUnit]}
+                {line.instructions ? ` · ${line.instructions}` : ""}
               </p>
             </div>
           </div>
@@ -51,4 +52,4 @@ export function DrugChipList({ lines, onRemove }: DrugChipListProps) {
       })}
     </ul>
   );
-}
+} 

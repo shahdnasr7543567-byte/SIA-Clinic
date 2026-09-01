@@ -1,11 +1,12 @@
 import { useState } from "react";
+import dayjs from "dayjs";
 import { CalendarClock } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { useReminders } from "@/hooks/usePatientData";
+import { useReminders, useCreateReminder } from "@/hooks/usePatientData";
 import type { ReminderPreset } from "@/types/patientProfile";
 import { cn } from "@/lib/utils";
 
@@ -16,16 +17,31 @@ const presets: { id: ReminderPreset; label: string }[] = [
   { id: "custom", label: "تاريخ مخصص" },
 ];
 
+// The backend always wants a concrete date, even for presets like "week" —
+// it doesn't compute "today + 7 days" itself, so we do it here before sending.
+function resolveDate(preset: ReminderPreset, customDate: string): string {
+  switch (preset) {
+    case "tomorrow":
+      return dayjs().add(1, "day").format("YYYY-MM-DD");
+    case "week":
+      return dayjs().add(1, "week").format("YYYY-MM-DD");
+    case "month":
+      return dayjs().add(1, "month").format("YYYY-MM-DD");
+    case "custom":
+      return customDate;
+  }
+}
+
 interface ReminderPanelProps {
   patientId: string;
 }
 
 export function ReminderPanel({ patientId }: ReminderPanelProps) {
   const { data: reminders, isLoading } = useReminders(patientId);
+  const createReminder = useCreateReminder(patientId);
   const [selected, setSelected] = useState<ReminderPreset | null>(null);
   const [customDate, setCustomDate] = useState("");
 
-  // TODO(step: backend integration): POST the reminder, then invalidate the query.
   const handleSetReminder = () => {
     if (!selected) {
       toast.error("اختر موعد المتابعة الأول");
@@ -35,7 +51,20 @@ export function ReminderPanel({ patientId }: ReminderPanelProps) {
       toast.error("اختر تاريخ مخصص");
       return;
     }
-    toast.success("تم ضبط تذكير المتابعة");
+
+    createReminder.mutate(
+      { preset: selected, date: resolveDate(selected, customDate) },
+      {
+        onSuccess: () => {
+          toast.success("تم ضبط تذكير المتابعة");
+          setSelected(null);
+          setCustomDate("");
+        },
+        onError: () => {
+          toast.error("حصل خطأ أثناء ضبط التذكير، حاول تاني");
+        },
+      }
+    );
   };
 
   return (
@@ -59,9 +88,14 @@ export function ReminderPanel({ patientId }: ReminderPanelProps) {
       )}
 
       <div>
-        <Button type="button" onClick={handleSetReminder} className={cn(!selected && "opacity-70")}>
+        <Button
+          type="button"
+          onClick={handleSetReminder}
+          disabled={createReminder.isPending}
+          className={cn(!selected && "opacity-70")}
+        >
           <CalendarClock className="h-4 w-4" />
-          ضبط التذكير
+          {createReminder.isPending ? "جارٍ الضبط..." : "ضبط التذكير"}
         </Button>
       </div>
 
@@ -83,4 +117,4 @@ export function ReminderPanel({ patientId }: ReminderPanelProps) {
       </div>
     </div>
   );
-}
+} 

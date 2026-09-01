@@ -6,14 +6,15 @@ import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Logo } from "@/components/shared/Logo";
 import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/api/endpoints/auth.api";
 import type { UserRole } from "@/types/auth";
 
 const loginSchema = z.object({
@@ -23,18 +24,17 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-const devRoles: { value: UserRole; label: string }[] = [
-  { value: "receptionist", label: "استقبال" },
-  { value: "doctor", label: "طبيب" },
-  { value: "admin", label: "أدمن" },
-];
+const roleHome: Record<UserRole, string> = {
+  receptionist: "/reception",
+  doctor: "/doctor",
+  admin: "/admin",
+};
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<UserRole>("receptionist");
 
   const {
     register,
@@ -42,22 +42,20 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
-  // NOTE: this is a mock resolver until the backend module is connected.
-  // It intentionally does not fabricate any patient/doctor data — only a
-  // session for the account the user just typed in. The role picker below
-  // is a dev convenience so role-gated routes (e.g. /patients/search) can
-  // actually be tested before the backend supplies real roles.
-  const roleHome: Record<UserRole, string> = {
-    receptionist: "/reception",
-    doctor: "/doctor",
-    admin: "/admin",
-  };
-
+  // Now calls the real backend. The role picker is gone — the server tells
+  // us the account's actual role, we don't guess it on the client anymore.
   const onSubmit = async (data: LoginForm) => {
-    await new Promise((r) => setTimeout(r, 600));
-    login({ id: "temp-id", name: data.email.split("@")[0], email: data.email, role }, "mock-token");
-    toast.success("تم تسجيل الدخول بنجاح");
-    navigate(roleHome[role]);
+    try {
+      const { user, token } = await authApi.login(data);
+      login(user, token);
+      toast.success("تم تسجيل الدخول بنجاح");
+      navigate(roleHome[user.role]);
+    } catch (error) {
+      const message = axios.isAxiosError(error) && error.response?.status === 401
+        ? "الإيميل أو كلمة المرور غلط"
+        : "حصل خطأ، حاول تاني";
+      toast.error(message);
+    }
   };
 
   return (
@@ -105,18 +103,6 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && <p className="text-xs text-danger">{errors.password.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label>الدخول كـ (للتجربة فقط لغاية ما الـ backend يترّبط)</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {devRoles.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>
