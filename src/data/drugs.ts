@@ -31,8 +31,6 @@ export const drugFormLabels: Record<Drug["form"], string> = {
   capsule: "كبسولات",
 };
 
-// Visual icon per drug form — helps the doctor tell the dosage form apart at
-// a glance (tablet vs syrup vs injection...) without reading the label text.
 export const drugFormIcons: Record<DrugForm, LucideIcon> = {
   tablet: Pill,
   capsule: PillBottle,
@@ -42,10 +40,7 @@ export const drugFormIcons: Record<DrugForm, LucideIcon> = {
   ointment: Bandage,
 };
 
-// Common dosing frequencies a doctor can pick from instead of typing the
-// dosage schedule freehand every time. "أخرى" (custom) falls back to a free
-// text field so unusual regimens are still possible.
-export const dosageFrequencyOptions = [
+export const frequencyOptions = [
   { id: "once", label: "مرة واحدة يوميًا" },
   { id: "twice", label: "مرتين يوميًا" },
   { id: "thrice", label: "3 مرات يوميًا" },
@@ -57,6 +52,14 @@ export const dosageFrequencyOptions = [
   { id: "custom", label: "أخرى (تحديد يدوي)" },
 ] as const;
 
-// Common treatment-duration presets (in days) the doctor can tap instead of
-// typing a number every time. Manual entry is still available alongside these.
-export const durationPresetsDays = [3, 5, 7, 10, 14, 30];
+export const dosageAmountOptions = [
+  { id: "half", label: "نصف قرص" },
+  { id: "one", label: "قرص واحد" },
+  { id: "two", label: "قرصين" },
+  { id: "5ml", label: "5 مل" },
+  { id: "10ml", label: "10 مل" },
+  { id: "oneAmp", label: "أمبولة واحدة" },
+  { id: "custom", label: "أخرى (تحديد يدوي)" },
+] as const;
+
+export const durationPresetsDays = [3, 5, 7, 10, 14, 30]; 

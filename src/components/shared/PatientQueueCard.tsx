@@ -1,4 +1,5 @@
 import { memo } from "react";
+import dayjs from "dayjs";
 import { AlertTriangle, Siren, Circle, Phone, CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils";
 const priorityMeta: Record<Priority, { label: string; icon: typeof Circle; className: string }> = {
   normal: { label: "عادي", icon: Circle, className: "text-muted-foreground" },
   urgent: { label: "مستعجل", icon: AlertTriangle, className: "text-warning" },
-  emergency: { label: "طارئ", icon: Siren, className: "text-danger" },
+  critical: { label: "طارئ", icon: Siren, className: "text-danger" },
 };
 
 interface PatientQueueCardProps {
@@ -19,7 +20,9 @@ interface PatientQueueCardProps {
 
 function PatientQueueCardBase({ entry, onDone, onCancel }: PatientQueueCardProps) {
   const { patient } = entry;
-  const priority = priorityMeta[patient.priority];
+  // priority/examType belong to the queue entry, not the patient — the
+  // backend keeps a person's own data separate from a specific visit's data.
+  const priority = priorityMeta[entry.priority];
   const PriorityIcon = priority.icon;
 
   return (
@@ -30,9 +33,11 @@ function PatientQueueCardBase({ entry, onDone, onCancel }: PatientQueueCardProps
             <PriorityIcon className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium">{patient.name}</p>
+            <p className="font-medium">
+              #{entry.queueNumber} · {patient.name}
+            </p>
             <p className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Phone className="h-3 w-3" /> {patient.mobile} · {priority.label}
+              <Phone className="h-3 w-3" /> {patient.mobile} · {priority.label} · {dayjs(entry.enteredAt).format("hh:mm A")}
             </p>
           </div>
         </div>

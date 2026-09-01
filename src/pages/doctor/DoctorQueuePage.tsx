@@ -47,9 +47,15 @@ export default function DoctorQueuePage() {
             <ul className="divide-y divide-border">
               {queue.map((p) => (
                 <li key={p.id} className="flex items-center justify-between py-3">
-                  <span className="text-sm font-medium">{p.name}</span>
+                  <span className="text-sm font-medium">
+                    #{p.queueNumber} · {p.name} <span className="text-xs text-muted-foreground">({p.age})</span>
+                  </span>
                   <Button asChild size="sm">
-                    <Link to={`/doctor/prescription/new?patient=${p.id}`}>بدء الكشف</Link>
+                    <Link
+                      to={`/doctor/prescription/new?patientId=${p.patientId}&queueId=${p.id}&name=${encodeURIComponent(p.name)}&age=${p.age}`}
+                    >
+                      بدء الكشف
+                    </Link>
                   </Button>
                 </li>
               ))}
@@ -61,4 +67,4 @@ export default function DoctorQueuePage() {
       </Card>
     </div>
   );
-}
+} 

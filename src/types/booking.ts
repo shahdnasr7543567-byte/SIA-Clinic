@@ -1,11 +1,12 @@
-export type BookingExamType = "clinic" | "home" | "online";
+import type { ExamType } from "@/types/patient";
+
 export type PaymentMethod = "cash" | "instapay";
 
 export interface OnlineBookingPayload {
-  name: string;
+  patientName: string;
   mobile: string;
   age: number;
-  examType: BookingExamType;
+  examType: ExamType;
   date: string;
   time: string;
   paymentMethod: PaymentMethod;

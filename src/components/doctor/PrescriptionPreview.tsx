@@ -9,9 +9,6 @@ interface PrescriptionPreviewProps {
   diagnosis: string;
   drugs: PrescriptionDrugLine[];
   notes?: string;
-  /** Optional — when provided, each drug row gets a delete button so a drug
-   * can be removed directly from the preview, not just from the list above
-   * it. The button is hidden automatically when printing (print:hidden). */
   onRemoveDrug?: (lineId: string) => void;
 }
 
@@ -56,6 +53,7 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
                 <tr className="border-b border-border text-start text-muted-foreground">
                   <th className="py-1 text-start font-medium">الدواء</th>
                   <th className="py-1 text-start font-medium">الجرعة</th>
+                  <th className="py-1 text-start font-medium">التكرار</th>
                   <th className="py-1 text-start font-medium">المدة</th>
                   {onRemoveDrug && <th className="py-1 text-start font-medium print:hidden" />}
                 </tr>
@@ -70,8 +68,10 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
                           <FormIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground print:hidden" aria-hidden="true" />
                           {i + 1}. {line.drug.name} <span className="text-xs text-muted-foreground">({drugFormLabels[line.drug.form]})</span>
                         </span>
+                        {line.instructions && <p className="ps-5 text-xs text-muted-foreground">{line.instructions}</p>}
                       </td>
                       <td className="py-1.5">{line.dosage}</td>
+                      <td className="py-1.5">{line.frequency}</td>
                       <td className="py-1.5">{line.duration} {unitLabels[line.durationUnit]}</td>
                       {onRemoveDrug && (
                         <td className="py-1.5 text-end print:hidden">
@@ -110,4 +110,4 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
     );
   }
 );
-PrescriptionPreview.displayName = "PrescriptionPreview";
+PrescriptionPreview.displayName = "PrescriptionPreview"; 
