@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Printer, Send, CalendarClock } from "lucide-react";
+import { Printer, CalendarClock, TriangleAlert } from "lucide-react";
+import { useDrugInteractionCheck } from "@/hooks/useDrugInteractionCheck";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import { DiagnosisField } from "@/components/doctor/DiagnosisField";
 import { DrugAutocomplete } from "@/components/doctor/DrugAutocomplete";
 import { DrugChipList } from "@/components/doctor/DrugChipList";
 import { PrescriptionPreview } from "@/components/doctor/PrescriptionPreview";
-import { drugDatabase, prescriptionTemplates } from "@/data/drugs";
 import type { PrescriptionDrugLine } from "@/types/prescription";
 
 export default function PrescriptionBuilderPage() {
@@ -27,6 +27,7 @@ export default function PrescriptionBuilderPage() {
 
   const previewRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({ contentRef: previewRef, documentTitle: "SIA-Prescription" });
+  const interactionWarnings = useDrugInteractionCheck(drugs);
 
   const addDrug = (line: Omit<PrescriptionDrugLine, "lineId">) => {
     setDrugs((prev) => [...prev, { ...line, lineId: crypto.randomUUID() }]);
@@ -34,24 +35,6 @@ export default function PrescriptionBuilderPage() {
 
   const removeDrug = (lineId: string) => {
     setDrugs((prev) => prev.filter((l) => l.lineId !== lineId));
-  };
-
-  const applyTemplate = (templateId: string) => {
-    const template = prescriptionTemplates.find((t) => t.id === templateId);
-    if (!template) return;
-    setDiagnosis(template.diagnosis);
-    const templateDrugs = template.drugIds
-      .map((id) => drugDatabase.find((d) => d.id === id))
-      .filter((d): d is NonNullable<typeof d> => Boolean(d))
-      .map((d) => ({
-        lineId: crypto.randomUUID(),
-        drug: d,
-        dosage: "حسب إرشادات الطبيب",
-        duration: "5",
-        durationUnit: "days" as const,
-      }));
-    setDrugs(templateDrugs);
-    toast.success(`تم تطبيق قالب: ${template.label}`);
   };
 
   const handleSaveAndPrint = () => {
@@ -85,25 +68,26 @@ export default function PrescriptionBuilderPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>قوالب سريعة</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {prescriptionTemplates.map((t) => (
-              <Button key={t.id} type="button" variant="outline" size="sm" onClick={() => applyTemplate(t.id)}>
-                {t.label}
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
             <CardTitle>التشخيص والأدوية</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <DiagnosisField value={diagnosis} onChange={setDiagnosis} />
             <DrugAutocomplete onAdd={addDrug} />
             <DrugChipList lines={drugs} onRemove={removeDrug} />
+
+            {interactionWarnings.length > 0 && (
+              <div className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3">
+                {interactionWarnings.map((w, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm text-warning-foreground">
+                    <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      تعارض محتمل بين <strong>{w.drugNames[0]}</strong> و<strong>{w.drugNames[1]}</strong> — {w.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="notes">ملاحظات إضافية</Label>
               <Input id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -117,14 +101,11 @@ export default function PrescriptionBuilderPage() {
             حفظ وطباعة
           </Button>
           <Button variant="outline">
-            <Send className="h-4 w-4" />
-            إرسال للصيدلية
-          </Button>
-          <Button variant="outline">
             <CalendarClock className="h-4 w-4" />
             متابعة
           </Button>
         </div>
+        {/* NOTE: "إرسال للصيدلية" removed — Pharmacy module was cut from scope by team decision. */}
       </div>
 
       <div>
@@ -136,6 +117,7 @@ export default function PrescriptionBuilderPage() {
           diagnosis={diagnosis}
           drugs={drugs}
           notes={notes}
+          onRemoveDrug={removeDrug}
         />
       </div>
     </div>

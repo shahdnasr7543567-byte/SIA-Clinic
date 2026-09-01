@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Bot, CalendarPlus, LogOut, ListOrdered, Stethoscope } from "lucide-react";
+import { LayoutDashboard, Users, Bot, LogOut, ListOrdered, Stethoscope, ShieldCheck, ClipboardPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { Logo } from "@/components/shared/Logo";
@@ -14,12 +14,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: "/", labelKey: "nav.dashboard", icon: LayoutDashboard },
-  { to: "/reception/queue", labelKey: "nav.queue", icon: ListOrdered },
-  { to: "/doctor/queue", labelKey: "nav.doctorQueue", icon: Stethoscope },
+  { to: "/admin", labelKey: "nav.adminDashboard", icon: ShieldCheck, roles: ["admin"] },
+  { to: "/reception", labelKey: "nav.dashboard", icon: LayoutDashboard, roles: ["admin", "receptionist"] },
+  { to: "/reception/add-patient", labelKey: "nav.addPatient", icon: ClipboardPlus, roles: ["admin", "receptionist"] },
+  { to: "/reception/queue", labelKey: "nav.queue", icon: ListOrdered, roles: ["admin", "receptionist"] },
+  { to: "/doctor", labelKey: "nav.doctorDashboard", icon: Stethoscope, roles: ["admin", "doctor"] },
+  { to: "/doctor/queue", labelKey: "nav.doctorQueue", icon: ListOrdered, roles: ["admin", "doctor"] },
   { to: "/patients/search", labelKey: "nav.patients", icon: Users, roles: ["doctor", "admin"] },
-  { to: "/ai-agent", labelKey: "nav.aiAgent", icon: Bot },
-  { to: "/book", labelKey: "nav.booking", icon: CalendarPlus },
+  { to: "/ai-agent", labelKey: "nav.aiAgent", icon: Bot, roles: ["doctor", "admin"] },
 ];
 
 export function Sidebar() {
@@ -44,7 +46,7 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
-            end={to === "/"}
+            end={to === "/admin" || to === "/reception" || to === "/doctor"}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",

@@ -5,8 +5,11 @@
   },
   "nav": {
     "dashboard": "لوحة التحكم",
+    "adminDashboard": "لوحة الأدمن",
+    "addPatient": "إضافة مريض",
     "queue": "قائمة الانتظار",
     "doctorQueue": "قائمة الطبيب",
+    "doctorDashboard": "لوحة الطبيب",
     "patients": "المرضى",
     "prescriptions": "الروشتات",
     "aiAgent": "المساعد الذكي",

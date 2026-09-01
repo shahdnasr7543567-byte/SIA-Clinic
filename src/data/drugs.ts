@@ -1,4 +1,5 @@
-import type { Drug, PrescriptionTemplate } from "@/types/prescription";
+import { Pill, PillBottle, FlaskConical, Syringe, SprayCan, Bandage, type LucideIcon } from "lucide-react";
+import type { Drug, DrugForm } from "@/types/prescription";
 
 export const drugDatabase: Drug[] = [
   { id: "d1", name: "بانادول", genericName: "Paracetamol", form: "tablet" },
@@ -30,8 +31,32 @@ export const drugFormLabels: Record<Drug["form"], string> = {
   capsule: "كبسولات",
 };
 
-export const prescriptionTemplates: PrescriptionTemplate[] = [
-  { id: "t1", label: "برد وأنفلونزا", diagnosis: "التهاب الجهاز التنفسي العلوي (نزلة برد)", drugIds: ["d1", "d5", "d17"] },
-  { id: "t2", label: "ضغط الدم", diagnosis: "ارتفاع ضغط الدم", drugIds: ["d14", "d15"] },
-  { id: "t3", label: "السكري", diagnosis: "متابعة مرض السكري النوع الثاني", drugIds: ["d13"] },
-];
+// Visual icon per drug form — helps the doctor tell the dosage form apart at
+// a glance (tablet vs syrup vs injection...) without reading the label text.
+export const drugFormIcons: Record<DrugForm, LucideIcon> = {
+  tablet: Pill,
+  capsule: PillBottle,
+  syrup: FlaskConical,
+  injection: Syringe,
+  spray: SprayCan,
+  ointment: Bandage,
+};
+
+// Common dosing frequencies a doctor can pick from instead of typing the
+// dosage schedule freehand every time. "أخرى" (custom) falls back to a free
+// text field so unusual regimens are still possible.
+export const dosageFrequencyOptions = [
+  { id: "once", label: "مرة واحدة يوميًا" },
+  { id: "twice", label: "مرتين يوميًا" },
+  { id: "thrice", label: "3 مرات يوميًا" },
+  { id: "four", label: "4 مرات يوميًا" },
+  { id: "every6h", label: "كل 6 ساعات" },
+  { id: "every8h", label: "كل 8 ساعات" },
+  { id: "every12h", label: "كل 12 ساعة" },
+  { id: "prn", label: "عند اللزوم" },
+  { id: "custom", label: "أخرى (تحديد يدوي)" },
+] as const;
+
+// Common treatment-duration presets (in days) the doctor can tap instead of
+// typing a number every time. Manual entry is still available alongside these.
+export const durationPresetsDays = [3, 5, 7, 10, 14, 30];

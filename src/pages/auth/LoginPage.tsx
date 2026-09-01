@@ -24,9 +24,8 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 const devRoles: { value: UserRole; label: string }[] = [
-  { value: "reception", label: "استقبال" },
+  { value: "receptionist", label: "استقبال" },
   { value: "doctor", label: "طبيب" },
-  { value: "patient", label: "مريض" },
   { value: "admin", label: "أدمن" },
 ];
 
@@ -35,7 +34,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<UserRole>("reception");
+  const [role, setRole] = useState<UserRole>("receptionist");
 
   const {
     register,
@@ -48,11 +47,17 @@ export default function LoginPage() {
   // session for the account the user just typed in. The role picker below
   // is a dev convenience so role-gated routes (e.g. /patients/search) can
   // actually be tested before the backend supplies real roles.
+  const roleHome: Record<UserRole, string> = {
+    receptionist: "/reception",
+    doctor: "/doctor",
+    admin: "/admin",
+  };
+
   const onSubmit = async (data: LoginForm) => {
     await new Promise((r) => setTimeout(r, 600));
     login({ id: "temp-id", name: data.email.split("@")[0], email: data.email, role }, "mock-token");
     toast.success("تم تسجيل الدخول بنجاح");
-    navigate("/");
+    navigate(roleHome[role]);
   };
 
   return (
@@ -118,13 +123,6 @@ export default function LoginPage() {
               {isSubmitting ? t("common.loading") : t("auth.loginButton")}
             </Button>
           </form>
-
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            {t("auth.noAccount")}{" "}
-            <Link to="/register" className="text-primary hover:underline">
-              {t("auth.createAccount")}
-            </Link>
-          </p>
         </CardContent>
       </Card>
     </div>

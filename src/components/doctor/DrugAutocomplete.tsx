@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { drugDatabase, drugFormLabels } from "@/data/drugs";
+import { drugDatabase, drugFormLabels, drugFormIcons, dosageFrequencyOptions, durationPresetsDays } from "@/data/drugs";
 import type { Drug, DrugForm, PrescriptionDrugLine } from "@/types/prescription";
 
 interface DrugAutocompleteProps {
@@ -13,14 +13,23 @@ interface DrugAutocompleteProps {
 }
 
 const drugForms = Object.keys(drugFormLabels) as DrugForm[];
+const CUSTOM_DOSAGE_ID = "custom";
 
 export function DrugAutocomplete({ onAdd }: DrugAutocompleteProps) {
   const [query, setQuery] = useState("");
   const [formFilter, setFormFilter] = useState<DrugForm | "all">("all");
   const [selected, setSelected] = useState<Drug | null>(null);
-  const [dosage, setDosage] = useState("");
+  const [dosageOption, setDosageOption] = useState("");
+  const [customDosage, setCustomDosage] = useState("");
   const [duration, setDuration] = useState("");
   const [durationUnit, setDurationUnit] = useState<PrescriptionDrugLine["durationUnit"]>("days");
+
+  // Resolve what actually gets saved on the prescription line: the preset
+  // label, or the doctor's freehand text when "أخرى" is selected.
+  const dosage =
+    dosageOption === CUSTOM_DOSAGE_ID
+      ? customDosage
+      : dosageFrequencyOptions.find((o) => o.id === dosageOption)?.label ?? "";
 
   const fuse = useMemo(
     () => new Fuse(drugDatabase, { keys: ["name", "genericName"], threshold: 0.35 }),
@@ -42,7 +51,8 @@ export function DrugAutocomplete({ onAdd }: DrugAutocompleteProps) {
     onAdd({ drug: selected, dosage, duration, durationUnit });
     setSelected(null);
     setQuery("");
-    setDosage("");
+    setDosageOption("");
+    setCustomDosage("");
     setDuration("");
   };
 
@@ -60,23 +70,27 @@ export function DrugAutocomplete({ onAdd }: DrugAutocompleteProps) {
           />
           {results.length > 0 && !selected && (
             <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card shadow-md">
-              {results.map((drug) => (
-                <li key={drug.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelected(drug);
-                      setQuery(drug.name);
-                    }}
-                    className="flex w-full items-center justify-between px-3 py-2 text-start text-sm hover:bg-muted"
-                  >
-                    <span>
-                      {drug.name} <span className="text-muted-foreground">({drug.genericName})</span>
-                    </span>
-                    <span className="text-xs text-muted-foreground">{drugFormLabels[drug.form]}</span>
-                  </button>
-                </li>
-              ))}
+              {results.map((drug) => {
+                const FormIcon = drugFormIcons[drug.form];
+                return (
+                  <li key={drug.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelected(drug);
+                        setQuery(drug.name);
+                      }}
+                      className="flex w-full items-center justify-between px-3 py-2 text-start text-sm hover:bg-muted"
+                    >
+                      <span className="flex items-center gap-2">
+                        <FormIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        {drug.name} <span className="text-muted-foreground">({drug.genericName})</span>
+                      </span>
+                      <span className="text-xs text-muted-foreground">{drugFormLabels[drug.form]}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -92,18 +106,56 @@ export function DrugAutocomplete({ onAdd }: DrugAutocompleteProps) {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr,1fr,120px,auto]">
-        <Input placeholder="الجرعة (مثال: قرص كل 8 ساعات)" value={dosage} onChange={(e) => setDosage(e.target.value)} />
-        <Input placeholder="المدة" value={duration} onChange={(e) => setDuration(e.target.value)} />
-        <Select value={durationUnit} onValueChange={(v) => setDurationUnit(v as PrescriptionDrugLine["durationUnit"])}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="days">أيام</SelectItem>
-            <SelectItem value="weeks">أسابيع</SelectItem>
-            <SelectItem value="months">شهور</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button type="button" onClick={handleAdd} disabled={!canAdd}>
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Select value={dosageOption} onValueChange={setDosageOption}>
+              <SelectTrigger><SelectValue placeholder="اختر الجرعة" /></SelectTrigger>
+              <SelectContent>
+                {dosageFrequencyOptions.map((o) => (
+                  <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {dosageOption === CUSTOM_DOSAGE_ID && (
+              <Input
+                placeholder="اكتب الجرعة يدويًا (مثال: قرص كل 8 ساعات)"
+                value={customDosage}
+                onChange={(e) => setCustomDosage(e.target.value)}
+              />
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-[1fr,110px] gap-2">
+              <Input placeholder="المدة" value={duration} onChange={(e) => setDuration(e.target.value)} />
+              <Select value={durationUnit} onValueChange={(v) => setDurationUnit(v as PrescriptionDrugLine["durationUnit"])}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="days">أيام</SelectItem>
+                  <SelectItem value="weeks">أسابيع</SelectItem>
+                  <SelectItem value="months">شهور</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {durationUnit === "days" && (
+              <div className="flex flex-wrap gap-1.5">
+                {durationPresetsDays.map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setDuration(String(d))}
+                    className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    {d} يوم
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button type="button" onClick={handleAdd} disabled={!canAdd} className="self-start">
           <Plus className="h-4 w-4" />
           إضافة دواء
         </Button>

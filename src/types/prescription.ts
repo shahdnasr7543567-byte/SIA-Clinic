@@ -15,13 +15,6 @@ export interface PrescriptionDrugLine {
   durationUnit: "days" | "weeks" | "months";
 }
 
-export interface PrescriptionTemplate {
-  id: string;
-  label: string;
-  diagnosis: string;
-  drugIds: string[];
-}
-
 export interface Prescription {
   id: string;
   patientName: string;

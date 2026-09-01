@@ -5,8 +5,11 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "addPatient": "Add Patient",
     "queue": "Queue",
     "doctorQueue": "Doctor Queue",
+    "doctorDashboard": "Doctor Dashboard",
     "patients": "Patients",
     "prescriptions": "Prescriptions",
     "aiAgent": "AI Agent",

@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
-import { drugFormLabels } from "@/data/drugs";
+import { X } from "lucide-react";
+import { drugFormLabels, drugFormIcons } from "@/data/drugs";
 import type { PrescriptionDrugLine } from "@/types/prescription";
 
 interface PrescriptionPreviewProps {
@@ -8,6 +9,10 @@ interface PrescriptionPreviewProps {
   diagnosis: string;
   drugs: PrescriptionDrugLine[];
   notes?: string;
+  /** Optional — when provided, each drug row gets a delete button so a drug
+   * can be removed directly from the preview, not just from the list above
+   * it. The button is hidden automatically when printing (print:hidden). */
+  onRemoveDrug?: (lineId: string) => void;
 }
 
 const unitLabels: Record<PrescriptionDrugLine["durationUnit"], string> = {
@@ -17,7 +22,7 @@ const unitLabels: Record<PrescriptionDrugLine["durationUnit"], string> = {
 };
 
 export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPreviewProps>(
-  ({ patientName, patientAge, diagnosis, drugs, notes }, ref) => {
+  ({ patientName, patientAge, diagnosis, drugs, notes, onRemoveDrug }, ref) => {
     return (
       <div ref={ref} className="mx-auto w-full max-w-2xl rounded-xl border border-border bg-white p-8 text-secondary print:border-0 print:shadow-none">
         <div className="flex items-center justify-between border-b border-border pb-4">
@@ -52,18 +57,37 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
                   <th className="py-1 text-start font-medium">الدواء</th>
                   <th className="py-1 text-start font-medium">الجرعة</th>
                   <th className="py-1 text-start font-medium">المدة</th>
+                  {onRemoveDrug && <th className="py-1 text-start font-medium print:hidden" />}
                 </tr>
               </thead>
               <tbody>
-                {drugs.map((line, i) => (
-                  <tr key={line.lineId} className="border-b border-border/60">
-                    <td className="py-1.5">
-                      {i + 1}. {line.drug.name} <span className="text-xs text-muted-foreground">({drugFormLabels[line.drug.form]})</span>
-                    </td>
-                    <td className="py-1.5">{line.dosage}</td>
-                    <td className="py-1.5">{line.duration} {unitLabels[line.durationUnit]}</td>
-                  </tr>
-                ))}
+                {drugs.map((line, i) => {
+                  const FormIcon = drugFormIcons[line.drug.form];
+                  return (
+                    <tr key={line.lineId} className="border-b border-border/60">
+                      <td className="py-1.5">
+                        <span className="inline-flex items-center gap-1.5">
+                          <FormIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground print:hidden" aria-hidden="true" />
+                          {i + 1}. {line.drug.name} <span className="text-xs text-muted-foreground">({drugFormLabels[line.drug.form]})</span>
+                        </span>
+                      </td>
+                      <td className="py-1.5">{line.dosage}</td>
+                      <td className="py-1.5">{line.duration} {unitLabels[line.durationUnit]}</td>
+                      {onRemoveDrug && (
+                        <td className="py-1.5 text-end print:hidden">
+                          <button
+                            type="button"
+                            onClick={() => onRemoveDrug(line.lineId)}
+                            className="rounded-full p-1 text-muted-foreground hover:bg-danger/10 hover:text-danger"
+                            aria-label="حذف الدواء من الروشتة"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
