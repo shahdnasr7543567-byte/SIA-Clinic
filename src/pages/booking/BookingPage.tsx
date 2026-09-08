@@ -7,20 +7,21 @@ import { Banknote, Smartphone } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { availableTimeSlots } from "@/data/timeSlots";
 import { Logo } from "@/components/shared/Logo";
 import { cn } from "@/lib/utils";
 import { bookingApi } from "@/api/endpoints/booking.api";
+import { usePatientAuthStore } from "@/store/patientAuthStore";
 
 const todayIso = new Date().toISOString().split("T")[0];
 
+// patientName/mobile are no longer collected here — the patient is already
+// logged in (see PatientProtectedRoute), so identity comes from their
+// account, not from typing it again.
 const bookingSchema = z.object({
-  patientName: z.string().min(2, { message: "الاسم قصير جدًا" }),
-  mobile: z.string().regex(/^01[0125][0-9]{8}$/, { message: "رقم موبايل مصري غير صحيح" }),
-  age: z.coerce.number().min(0, { message: "السن غير صحيح" }).max(120),
   examType: z.enum(["examination", "followup", "consultation"], { message: "اختر نوع الكشف" }),
   date: z
     .string()
@@ -33,9 +34,9 @@ const bookingSchema = z.object({
 type BookingForm = z.infer<typeof bookingSchema>;
 
 export default function BookingPage() {
+  const patient = usePatientAuthStore((state) => state.patient);
   const [submitted, setSubmitted] = useState(false);
   const {
-    register,
     handleSubmit,
     control,
     watch,
@@ -45,7 +46,9 @@ export default function BookingPage() {
   const selectedTime = watch("time");
   const selectedPayment = watch("paymentMethod");
 
-  // Now calls the real public POST /bookings endpoint (no auth required).
+  // Calls POST /bookings as the logged-in patient — the backend reads the
+  // patient's identity from the auth token attached by axiosClient, not
+  // from this payload.
   const onSubmit = async (data: BookingForm) => {
     try {
       await bookingApi.create(data);
@@ -62,7 +65,9 @@ export default function BookingPage() {
           <Logo className="mx-auto mb-2 h-14 w-14" />
           <p className="font-heading text-lg font-bold text-secondary dark:text-foreground">SIA Clinic</p>
           <CardTitle>حجز موعد أونلاين</CardTitle>
-          <CardDescription>احجز موعدك في عيادة سيا في أقل من دقيقة، من غير ما تسجل دخول</CardDescription>
+          <CardDescription>
+            {patient ? `أهلًا ${patient.name}، احجز موعدك في أقل من دقيقة` : "احجز موعدك في عيادة سيا"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {submitted ? (
@@ -72,25 +77,12 @@ export default function BookingPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <Label htmlFor="patientName">الاسم</Label>
-                  <Input id="patientName" placeholder="اسمك بالكامل" {...register("patientName")} />
-                  {errors.patientName && <p className="text-xs text-danger">{errors.patientName.message}</p>}
-                </div>
-
+              {patient && (
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="mobile">رقم الموبايل</Label>
-                  <Input id="mobile" placeholder="01xxxxxxxxx" {...register("mobile")} />
-                  {errors.mobile && <p className="text-xs text-danger">{errors.mobile.message}</p>}
+                  <Label>بيانات المريض</Label>
+                  <Input value={`${patient.name} — ${patient.mobile}`} disabled readOnly />
                 </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="age">السن</Label>
-                  <Input id="age" type="number" placeholder="السن" {...register("age")} />
-                  {errors.age && <p className="text-xs text-danger">{errors.age.message}</p>}
-                </div>
-              </div>
+              )}
 
               <div className="flex flex-col gap-1.5">
                 <Label>نوع الكشف</Label>
@@ -114,7 +106,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="date">التاريخ</Label>
-                  <Input id="date" type="date" min={todayIso} {...register("date")} />
+                  <Input id="date" type="date" min={todayIso} {...control.register("date")} />
                   {errors.date && <p className="text-xs text-danger">{errors.date.message}</p>}
                 </div>
 
@@ -185,5 +177,4 @@ export default function BookingPage() {
       </Card>
     </div>
   );
-}
-
+} 

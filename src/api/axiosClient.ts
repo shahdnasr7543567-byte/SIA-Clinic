@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import { usePatientAuthStore } from "@/store/patientAuthStore";
 
 /**
  * Single shared axios instance. Every file under api/endpoints/ imports
@@ -15,26 +16,40 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
-// Attach the Zustand-persisted token to every outgoing request.
+// Attach whichever session is active. Staff and patients are two separate
+// stores/tokens — a browser tab is expected to be logged in as one or the
+// other, never both at once, so prefer staff if present, else patient.
 apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
+  const staffToken = useAuthStore.getState().token;
+  const patientToken = usePatientAuthStore.getState().token;
+  const token = staffToken ?? patientToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// A 401 means the session is no longer valid on the server — log out and
-// send the user back to /login rather than leaving the app in a broken state.
+// A 401 means the session is no longer valid on the server — log out of
+// whichever session actually made the request and send the user to the
+// matching login page. Staff and patient sessions are never mixed here.
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().logout();
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-        window.location.assign("/login");
+      const isPatientSession = usePatientAuthStore.getState().isAuthenticated;
+
+      if (isPatientSession) {
+        usePatientAuthStore.getState().logout();
+        if (typeof window !== "undefined" && window.location.pathname !== "/patient/login") {
+          window.location.assign("/patient/login");
+        }
+      } else {
+        useAuthStore.getState().logout();
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.assign("/login");
+        }
       }
     }
     return Promise.reject(error);
   }
-);
+); 
