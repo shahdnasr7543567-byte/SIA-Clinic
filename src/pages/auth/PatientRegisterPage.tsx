@@ -13,16 +13,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Logo } from "@/components/shared/Logo";
-import { useAuthStore } from "@/store/authStore";
-import { authApi } from "@/api/endpoints/auth.api";
+import { usePatientAuthStore } from "@/store/patientAuthStore";
+import { patientAuthApi } from "@/api/endpoints/patientAuth.api";
 
 // NOTE: this is intentionally separate from staff registration.
-// Patients only ever get role "patient" — there is no role picker here,
-// and the resulting session must never be able to reach staff routes
-// (see the security note in App.tsx / types/auth.ts).
+// Patients never touch useAuthStore/authApi (staff) — see the security
+// note in App.tsx / types/auth.ts about keeping the two systems isolated.
 const patientRegisterSchema = z.object({
   name: z.string().min(2, { message: "الاسم لازم يكون حرفين على الأقل" }),
-  phone: z.string().min(10, { message: "رقم موبايل غير صالح" }),
+  mobile: z.string().min(10, { message: "رقم موبايل غير صالح" }),
+  age: z.coerce.number().min(0, { message: "السن غير صحيح" }).max(120),
   password: z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }),
 });
 
@@ -31,7 +31,7 @@ type PatientRegisterForm = z.infer<typeof patientRegisterSchema>;
 export default function PatientRegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const login = usePatientAuthStore((s) => s.login);
   const [showPassword, setShowPassword] = useState(false);
 
   // clinicCode comes from the URL (/register/:clinicCode), not typed by
@@ -50,8 +50,8 @@ export default function PatientRegisterPage() {
       return;
     }
     try {
-      const { user, token } = await authApi.patientRegister({ ...data, clinicCode });
-      login(user, token);
+      const { patient, token } = await patientAuthApi.register({ ...data, clinicCode });
+      login(patient, token);
       toast.success("تم إنشاء حسابك بنجاح");
       navigate("/patient/dashboard");
     } catch (error) {
@@ -104,12 +104,18 @@ export default function PatientRegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="phone">رقم الموبايل</Label>
+              <Label htmlFor="mobile">رقم الموبايل</Label>
               <div className="relative">
                 <Phone className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="phone" type="tel" className="ps-9" placeholder="01012345678" {...register("phone")} />
+                <Input id="mobile" type="tel" className="ps-9" placeholder="01012345678" {...register("mobile")} />
               </div>
-              {errors.phone && <p className="text-xs text-danger">{errors.phone.message}</p>}
+              {errors.mobile && <p className="text-xs text-danger">{errors.mobile.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="age">السن</Label>
+              <Input id="age" type="number" placeholder="السن" {...register("age")} />
+              {errors.age && <p className="text-xs text-danger">{errors.age.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">

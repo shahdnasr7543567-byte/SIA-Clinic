@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff, Phone, Lock } from "lucide-react";
 import toast from "react-hot-toast";
@@ -13,15 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Logo } from "@/components/shared/Logo";
-import { useAuthStore } from "@/store/authStore";
-import { authApi } from "@/api/endpoints/auth.api";
+import { usePatientAuthStore } from "@/store/patientAuthStore";
+import { patientAuthApi } from "@/api/endpoints/patientAuth.api";
 
 // Patient-only login — phone based, completely separate from staff
-// LoginPage (email based). Never merge these two forms/routes; see the
-// security note in App.tsx about keeping patient and staff entry points
-// fully isolated.
+// LoginPage (email based). Never merge these two forms/routes/stores; see
+// the security note in App.tsx about keeping patient and staff entry
+// points fully isolated.
 const patientLoginSchema = z.object({
-  phone: z.string().min(10, { message: "رقم موبايل غير صالح" }),
+  mobile: z.string().min(10, { message: "رقم موبايل غير صالح" }),
   password: z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }),
 });
 
@@ -30,7 +30,7 @@ type PatientLoginForm = z.infer<typeof patientLoginSchema>;
 export default function PatientLoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const login = usePatientAuthStore((s) => s.login);
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -41,8 +41,8 @@ export default function PatientLoginPage() {
 
   const onSubmit = async (data: PatientLoginForm) => {
     try {
-      const { user, token } = await authApi.patientLogin(data);
-      login(user, token);
+      const { patient, token } = await patientAuthApi.login(data);
+      login(patient, token);
       toast.success("تم تسجيل الدخول بنجاح");
       navigate("/patient/dashboard");
     } catch (error) {
@@ -64,12 +64,12 @@ export default function PatientLoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="phone">رقم الموبايل</Label>
+              <Label htmlFor="mobile">رقم الموبايل</Label>
               <div className="relative">
                 <Phone className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="phone" type="tel" className="ps-9" placeholder="01012345678" {...register("phone")} />
+                <Input id="mobile" type="tel" className="ps-9" placeholder="01012345678" {...register("mobile")} />
               </div>
-              {errors.phone && <p className="text-xs text-danger">{errors.phone.message}</p>}
+              {errors.mobile && <p className="text-xs text-danger">{errors.mobile.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">

@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Phone, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -18,7 +18,7 @@ import { authApi } from "@/api/endpoints/auth.api";
 import type { UserRole } from "@/types/auth";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "بريد إلكتروني غير صالح" }),
+  phone: z.string().min(10, { message: "رقم موبايل غير صالح" }),
   password: z.string().min(6, { message: "كلمة المرور 6 أحرف على الأقل" }),
 });
 
@@ -28,6 +28,7 @@ const roleHome: Record<UserRole, string> = {
   receptionist: "/reception",
   doctor: "/doctor",
   admin: "/admin",
+  patient: "/patient/dashboard",
 };
 
 export default function LoginPage() {
@@ -52,7 +53,7 @@ export default function LoginPage() {
       navigate(roleHome[user.role]);
     } catch (error) {
       const message = axios.isAxiosError(error) && error.response?.status === 401
-        ? "الإيميل أو كلمة المرور غلط"
+        ? "رقم الموبايل أو كلمة المرور غلط"
         : "حصل خطأ، حاول تاني";
       toast.error(message);
     }
@@ -69,12 +70,12 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">{t("auth.email")}</Label>
+              <Label htmlFor="phone">{t("auth.phone")}</Label>
               <div className="relative">
-                <Mail className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" className="ps-9" placeholder="name@clinic.com" {...register("email")} />
+                <Phone className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="phone" type="tel" className="ps-9" placeholder="01012345678" {...register("phone")} />
               </div>
-              {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
+              {errors.phone && <p className="text-xs text-danger">{errors.phone.message}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -113,4 +114,4 @@ export default function LoginPage() {
       </Card>
     </div>
   );
-}
+} 
