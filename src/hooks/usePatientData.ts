@@ -57,4 +57,11 @@ export function useMyPrescriptionById(id: string) {
     queryFn: () => patientPortalApi.getPrescriptionById(id),
     enabled: !!id,
   });
+}
+
+export function useMyBookings() {
+  return useQuery({
+    queryKey: ["patient-portal", "bookings"],
+    queryFn: () => patientPortalApi.getMyBookings(),
+  });
 } 

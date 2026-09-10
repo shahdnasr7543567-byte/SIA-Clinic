@@ -10,4 +10,19 @@ export interface OnlineBookingPayload {
   date: string;
   time: string;
   paymentMethod: PaymentMethod;
+}
+
+// حالة الحجز زي ما بترجع من الباك إند بعد ما يتحفظ ويتراجع من الريسبشن.
+export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
+
+// شكل الحجز الكامل زي ما بيرجع من GET /patient/bookings — نفس بيانات
+// الفورم (OnlineBookingPayload) بالإضافة لبيانات السيرفر (id, status, تاريخ الإنشاء).
+export interface BookingRecord {
+  id: string;
+  examType: ExamType;
+  date: string;
+  time: string;
+  paymentMethod: PaymentMethod;
+  status: BookingStatus;
+  createdAt: string;
 } 

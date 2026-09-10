@@ -28,6 +28,7 @@ const PatientRegisterPage = lazy(() => import("@/pages/auth/PatientRegisterPage"
 const PatientLoginPage = lazy(() => import("@/pages/auth/PatientLoginPage"));
 const PrescriptionVerifyPage = lazy(() => import("@/pages/public/PrescriptionVerifyPage"));
 const PatientPrescriptionsPage = lazy(() => import("@/pages/patient/PatientPrescriptionsPage"));
+const PatientBookingsPage = lazy(() => import("@/pages/patient/PatientBookingsPage"));
 
 export default function App() {
   return (
@@ -92,6 +93,7 @@ export default function App() {
           <Route path="/patient/dashboard" element={<div>لوحة المريض (قريبًا)</div>} />
           <Route path="/patient/book" element={<BookingPage />} />
           <Route path="/patient/prescriptions" element={<PatientPrescriptionsPage />} />
+          <Route path="/patient/bookings" element={<PatientBookingsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
