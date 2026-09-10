@@ -64,4 +64,11 @@ export function useMyBookings() {
     queryKey: ["patient-portal", "bookings"],
     queryFn: () => patientPortalApi.getMyBookings(),
   });
+}
+
+export function useMedicalProfile() {
+  return useQuery({
+    queryKey: ["patient-portal", "medical-profile"],
+    queryFn: () => patientPortalApi.getMyMedicalProfile(),
+  });
 } 

@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/axiosClient";
 import type { PrescriptionRecord } from "@/types/prescription";
 import type { BookingRecord } from "@/types/booking";
+import type { MyMedicalProfile } from "@/types/patientProfile";
 
 /**
  * Self-service endpoints for a logged-in PATIENT viewing their own data.
@@ -17,4 +18,7 @@ export const patientPortalApi = {
 
   getMyBookings: () =>
     apiClient.get<BookingRecord[]>("/patient/bookings").then((r) => r.data),
-};
+
+  getMyMedicalProfile: () =>
+    apiClient.get<MyMedicalProfile>("/patient/medical-profile").then((r) => r.data),
+}; 
