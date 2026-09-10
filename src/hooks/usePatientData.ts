@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { patientApi } from "@/api/endpoints/patient.api";
+import { patientPortalApi } from "@/api/endpoints/patientPortal.api";
 import type { ReminderPreset } from "@/types/patientProfile";
 
 export function usePatientSearch(query: string) {
@@ -40,5 +41,20 @@ export function useCreateReminder(patientId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients", patientId, "reminders"] });
     },
+  });
+}
+
+export function useMyPrescriptions() {
+  return useQuery({
+    queryKey: ["patient-portal", "prescriptions"],
+    queryFn: () => patientPortalApi.getMyPrescriptions(),
+  });
+}
+
+export function useMyPrescriptionById(id: string) {
+  return useQuery({
+    queryKey: ["patient-portal", "prescriptions", id],
+    queryFn: () => patientPortalApi.getPrescriptionById(id),
+    enabled: !!id,
   });
 } 

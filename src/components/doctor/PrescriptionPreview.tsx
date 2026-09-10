@@ -1,15 +1,19 @@
 import { forwardRef } from "react";
 import { X } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { drugFormLabels, drugFormIcons } from "@/data/drugs";
 import type { PrescriptionDrugLine } from "@/types/prescription";
+import { buildPrescriptionWhatsappLink } from "@/utils/whatsapp";
 
 interface PrescriptionPreviewProps {
   patientName: string;
   patientAge?: number;
+  patientMobile?: string;
   diagnosis: string;
   drugs: PrescriptionDrugLine[];
   notes?: string;
   onRemoveDrug?: (lineId: string) => void;
+  verifyUrl?: string;
 }
 
 const unitLabels: Record<PrescriptionDrugLine["durationUnit"], string> = {
@@ -18,8 +22,27 @@ const unitLabels: Record<PrescriptionDrugLine["durationUnit"], string> = {
   months: "شهر",
 };
 
+function WhatsappButton({ patientMobile, patientName, verifyUrl }: { patientMobile: string; patientName: string; verifyUrl: string }) {
+  const link = buildPrescriptionWhatsappLink(patientMobile, patientName, verifyUrl);
+  const anchorProps = {
+    href: link,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 text-sm font-medium text-white hover:opacity-90",
+  };
+  return (
+    <div className="mt-6 flex justify-center print:hidden">
+      {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
+      {(() => {
+        const Anchor = "a" as const;
+        return <Anchor {...anchorProps}>إرسال الروشتة على واتساب</Anchor>;
+      })()}
+    </div>
+  );
+}
+
 export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPreviewProps>(
-  ({ patientName, patientAge, diagnosis, drugs, notes, onRemoveDrug }, ref) => {
+  ({ patientName, patientAge, patientMobile, diagnosis, drugs, notes, onRemoveDrug, verifyUrl }, ref) => {
     return (
       <div ref={ref} className="mx-auto w-full max-w-2xl rounded-xl border border-border bg-white p-8 text-secondary print:border-0 print:shadow-none">
         <div className="flex items-center justify-between border-b border-border pb-4">
@@ -27,9 +50,15 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
             <p className="font-heading text-xl font-bold text-primary">سيا | SIA Clinic</p>
             <p className="text-xs text-muted-foreground">روشتة طبية</p>
           </div>
-          <div className="h-16 w-16 rounded border border-dashed border-border text-center text-[10px] leading-[64px] text-muted-foreground">
-            QR
-          </div>
+          {verifyUrl ? (
+            <div className="rounded border border-border p-1">
+              <QRCodeCanvas value={verifyUrl} size={56} level="H" />
+            </div>
+          ) : (
+            <div className="h-16 w-16 rounded border border-dashed border-border text-center text-[10px] leading-[64px] text-muted-foreground">
+              QR
+            </div>
+          )}
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
@@ -106,6 +135,10 @@ export const PrescriptionPreview = forwardRef<HTMLDivElement, PrescriptionPrevie
             توقيع الطبيب
           </div>
         </div>
+
+        {patientMobile && verifyUrl && (
+          <WhatsappButton patientMobile={patientMobile} patientName={patientName} verifyUrl={verifyUrl} />
+        )}
       </div>
     );
   }

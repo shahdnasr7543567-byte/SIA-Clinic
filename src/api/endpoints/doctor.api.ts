@@ -1,5 +1,5 @@
 import { apiClient } from "@/api/axiosClient";
-import type { Prescription, PrescriptionDrugLine } from "@/types/prescription";
+import type { PrescriptionDrugLine, PrescriptionRecord } from "@/types/prescription";
 import type { Gender, Priority, ExamType } from "@/types/patient";
 
 export interface DoctorStats {
@@ -43,11 +43,13 @@ export const doctorApi = {
 
   getQueue: () => apiClient.get<DoctorQueueEntry[]>("/doctor/queue").then((r) => r.data),
 
+  // بترجع الشكل الحقيقي من الباك إند (فيه qrHash وprescriptionNumber)
+  // مش النوع القديم Prescription اللي كان شكله مختلف عن الرد الفعلي.
   createPrescription: (payload: CreatePrescriptionPayload) =>
-    apiClient.post<Prescription>("/doctor/prescriptions", payload).then((r) => r.data),
+    apiClient.post<PrescriptionRecord>("/doctor/prescriptions", payload).then((r) => r.data),
 
   getPrescription: (id: string) =>
-    apiClient.get<Prescription>(`/doctor/prescriptions/${id}`).then((r) => r.data),
+    apiClient.get<PrescriptionRecord>(`/doctor/prescriptions/${id}`).then((r) => r.data),
 
   sendToPharmacy: (prescriptionId: string) =>
     apiClient.post<void>(`/doctor/prescriptions/${prescriptionId}/send-to-pharmacy`).then((r) => r.data),

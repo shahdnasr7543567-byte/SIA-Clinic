@@ -19,7 +19,7 @@ export interface AuthUser {
 }
 
 export interface LoginPayload {
-  phone: string;
+  email: string;
   password: string;
 }
 
@@ -41,7 +41,7 @@ export interface PatientRegisterPayload {
   password: string;
   age?: number;
   clinicCode: string;
-} 
+}
 
 // Patient login — phone based (separate from staff LoginPayload which
 // stays email based).
