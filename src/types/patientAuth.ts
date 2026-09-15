@@ -24,6 +24,6 @@ export interface PatientRegisterPayload {
   age: number;
   password: string;
   clinicCode: string;
+  firebaseIdToken: string;
 } 
-
 
