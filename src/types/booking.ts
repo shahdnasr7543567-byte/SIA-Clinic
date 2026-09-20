@@ -25,4 +25,13 @@ export interface BookingRecord {
   paymentMethod: PaymentMethod;
   status: BookingStatus;
   createdAt: string;
+}
+
+// شكل الرد من GET /patient/queue-status — بيوضح ترتيب المريض في طابور
+// النهاردة (لو داخل فعلاً)، عشان يشوف كام واحد قبله من غير ما يسأل الاستقبال.
+export interface QueueStatus {
+  inQueue: boolean;
+  queueNumber?: number;
+  peopleAhead?: number;
+  estimatedWaitMinutes?: number;
 } 

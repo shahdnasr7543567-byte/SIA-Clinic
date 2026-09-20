@@ -66,6 +66,17 @@ export function useMyBookings() {
   });
 }
 
+// نفس فكرة تحديث طابور الطبيب (useDoctorQueue) — بيتحدث كل 15 ثانية لوحده
+// عشان المريض يشوف رقمه محدّث من غير ما يعمل refresh بنفسه.
+export function useQueueStatus() {
+  return useQuery({
+    queryKey: ["patient-portal", "queue-status"],
+    queryFn: () => patientPortalApi.getQueueStatus(),
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+  });
+}
+
 export function useMedicalProfile() {
   return useQuery({
     queryKey: ["patient-portal", "medical-profile"],

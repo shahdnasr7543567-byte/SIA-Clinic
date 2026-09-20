@@ -1,10 +1,10 @@
-import { CalendarClock, CalendarCheck2, CalendarX2, CalendarDays } from "lucide-react";
+import { CalendarClock, CalendarCheck2, CalendarX2, CalendarDays, Users, Clock } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageLoader } from "@/components/shared/PageLoader";
-import { useMyBookings } from "@/hooks/usePatientData";
-import type { BookingStatus, BookingRecord } from "@/types/booking";
+import { useMyBookings, useQueueStatus } from "@/hooks/usePatientData";
+import type { BookingStatus, BookingRecord, QueueStatus } from "@/types/booking";
 import type { ExamType } from "@/types/patient";
 
 const examTypeLabels: Record<ExamType, string> = {
@@ -38,6 +38,9 @@ const statusConfig: Record<BookingStatus, { label: string; className: string; ic
 
 export default function PatientBookingsPage() {
   const { data: bookings, isLoading } = useMyBookings();
+  // بيتحدث كل 15 ثانية لوحده (زي طابور الطبيب بالظبط) — لو المريض مش
+  // داخل طابور النهاردة، inQueue بترجع false والكارت مبيظهرش خالص.
+  const { data: queueStatus } = useQueueStatus();
 
   if (isLoading) return <PageLoader />;
 
@@ -48,6 +51,8 @@ export default function PatientBookingsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6">
+      {queueStatus?.inQueue && <QueueStatusCard status={queueStatus} />}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -86,6 +91,37 @@ export default function PatientBookingsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// كارت ترتيب المريض في طابور النهاردة — بيظهر بس لو inQueue: true
+// (يعني الاستقبال دخّله فعليًا في طابور اليوم).
+function QueueStatusCard({ status }: { status: QueueStatus }) {
+  const noOneAhead = status.peopleAhead === 0;
+
+  return (
+    <Card className="border-primary/30 bg-primary/5">
+      <CardContent className="flex items-center justify-between gap-4 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <Users className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-medium">
+              {noOneAhead ? "دورك جاي دلوقتي" : `${status.peopleAhead} أشخاص قبلك`}
+            </p>
+            <p className="text-xs text-muted-foreground">رقمك في الطابور: {status.queueNumber}</p>
+          </div>
+        </div>
+
+        {!noOneAhead && status.estimatedWaitMinutes !== undefined && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5" />
+            <span>≈ {status.estimatedWaitMinutes} دقيقة</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
