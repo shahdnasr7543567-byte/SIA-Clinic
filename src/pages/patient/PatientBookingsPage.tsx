@@ -29,6 +29,11 @@ const statusConfig: Record<BookingStatus, { label: string; className: string; ic
     className: "bg-success/10 text-success",
     icon: CalendarCheck2,
   },
+  completed: {
+    label: "تم الكشف",
+    className: "bg-success/10 text-success",
+    icon: CalendarCheck2,
+  },
   cancelled: {
     label: "ملغي",
     className: "bg-danger/10 text-danger",
@@ -126,7 +131,7 @@ function QueueStatusCard({ status }: { status: QueueStatus }) {
 }
 
 function BookingRow({ booking }: { booking: BookingRecord }) {
-  const status = statusConfig[booking.status];
+  const status = statusConfig[booking.status] ?? statusConfig.confirmed;
   const StatusIcon = status.icon;
 
   return (

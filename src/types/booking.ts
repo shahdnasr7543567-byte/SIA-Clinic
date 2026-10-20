@@ -13,7 +13,7 @@ export interface OnlineBookingPayload {
 }
 
 // حالة الحجز زي ما بترجع من الباك إند بعد ما يتحفظ ويتراجع من الريسبشن.
-export type BookingStatus = "pending" | "confirmed" | "done" | "cancelled";
+export type BookingStatus = "pending" | "confirmed" | "done" | "completed" | "cancelled";
 
 // شكل الحجز الكامل زي ما بيرجع من GET /patient/bookings — نفس بيانات
 // الفورم (OnlineBookingPayload) بالإضافة لبيانات السيرفر (id, status, تاريخ الإنشاء).
