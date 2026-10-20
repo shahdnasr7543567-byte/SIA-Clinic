@@ -7,6 +7,8 @@ import bookingRoutes from "./booking.routes.js";
 import aiRoutes from "./ai.routes.js";
 import paymentRoutes from "./payment.routes.js";
 import publicRoutes from "./public.routes.js";
+import patientAuthRoutes from "./patientAuth.routes.js";
+import patientPortalRoutes from "./patientPortal.routes.js";
 
 const apiRouter = Router();
 
@@ -22,6 +24,8 @@ apiRouter.get("/health", (req, res) => {
 });
 
 apiRouter.use("/auth", authRoutes);
+apiRouter.use("/patient-auth", patientAuthRoutes);
+apiRouter.use("/patient", patientPortalRoutes);
 apiRouter.use("/patients", patientRoutes);
 apiRouter.use("/reception", receptionRoutes);
 apiRouter.use("/doctor", doctorRoutes);

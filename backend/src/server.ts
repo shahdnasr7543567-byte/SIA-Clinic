@@ -1,11 +1,15 @@
 import { createApp } from "./app.js";
 import { connectDB } from "./config/db.js";
+import { initFirebase } from "./config/firebase.js";
 import { ENV } from "./config/env.js";
 
 const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
+
+    // Initialize Firebase Admin (for Phone Auth verification)
+    initFirebase();
 
     const app = createApp();
 

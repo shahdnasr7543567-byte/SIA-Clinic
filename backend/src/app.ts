@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import apiRouter from "./routes/index.js";
+import patientAuthRoutes from "./routes/patientAuth.routes.js";
+import patientPortalRoutes from "./routes/patientPortal.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { ENV } from "./config/env.js";
 
@@ -24,8 +26,12 @@ export const createApp = (): Express => {
     app.use(morgan("dev"));
   }
 
-  // Mount main API
+  // Mount main API under /api
   app.use("/api", apiRouter);
+
+  // Direct root aliases for patient endpoints (supports both /api/patient-auth and /patient-auth)
+  app.use("/patient-auth", patientAuthRoutes);
+  app.use("/patient", patientPortalRoutes);
 
   // 404 Fallback
   app.use("*", (req, res) => {

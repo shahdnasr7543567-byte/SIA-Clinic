@@ -35,6 +35,11 @@
       "key": "bookingId",
       "value": "66cb5d496a79e4d588000004",
       "type": "string"
+    },
+    {
+      "key": "patientToken",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -48,8 +53,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
             "description": "Check if the backend server and MongoDB connection are healthy."
           }
@@ -92,8 +101,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Logs in a user. Note: Automatically sets the `{{token}}` variable upon success.\n\nPre-seeded accounts:\n- Doctor: `doctor@sia.clinic` / `password123`\n- Receptionist: `reception@sia.clinic` / `password123`\n- Admin: `admin@sia.clinic` / `password123`"
           }
@@ -114,8 +128,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             },
             "description": "Registers a new user and links them to an existing clinic or provisions a new clinic."
           }
@@ -137,8 +156,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
             },
             "description": "Returns profile information for the currently authenticated token."
           }
@@ -159,8 +183,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "Initiates password reset instructions for a given email address."
           }
@@ -182,8 +211,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             },
             "description": "Logs out and destroys the user session."
           }
@@ -210,8 +244,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/reception/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["reception", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reception",
+                "stats"
+              ]
             },
             "description": "Returns real-time Reception dashboard counters (totalPatients, waiting, done, revenue)."
           }
@@ -233,8 +272,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/reception/queue",
-              "host": ["{{baseUrl}}"],
-              "path": ["reception", "queue"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reception",
+                "queue"
+              ]
             },
             "description": "Returns today's waiting list with queue numbers, patient details, priority badges, and visit statuses."
           }
@@ -265,8 +309,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/reception/patients",
-              "host": ["{{baseUrl}}"],
-              "path": ["reception", "patients"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reception",
+                "patients"
+              ]
             },
             "description": "Adds a patient into the daily queue. Enforces daily clinic capacity limits automatically."
           }
@@ -297,8 +346,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/reception/queue/{{queueId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["reception", "queue", "{{queueId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reception",
+                "queue",
+                "{{queueId}}"
+              ]
             },
             "description": "Updates a queue entry status to `waiting`, `done`, or `cancelled`."
           }
@@ -325,8 +380,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/doctor/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["doctor", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "stats"
+              ]
             },
             "description": "Returns doctor-specific statistics (waiting patients, total prescriptions created, revenue)."
           }
@@ -348,8 +408,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/doctor/queue",
-              "host": ["{{baseUrl}}"],
-              "path": ["doctor", "queue"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "queue"
+              ]
             },
             "description": "Retrieves waiting patients sorted by priority (Critical first, then Urgent, then Normal)."
           }
@@ -380,8 +445,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/doctor/prescriptions",
-              "host": ["{{baseUrl}}"],
-              "path": ["doctor", "prescriptions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "prescriptions"
+              ]
             },
             "description": "Creates a digital prescription with unique human-readable Rx ID, QR code verification token, and automatically updates the patient's queue entry to 'done'."
           }
@@ -403,8 +473,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/doctor/prescriptions/{{prescriptionId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["doctor", "prescriptions", "{{prescriptionId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "prescriptions",
+                "{{prescriptionId}}"
+              ]
             },
             "description": "Retrieves prescription details for printing or electronic viewing."
           }
@@ -426,8 +502,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/doctor/prescriptions/{{prescriptionId}}/send-to-pharmacy",
-              "host": ["{{baseUrl}}"],
-              "path": ["doctor", "prescriptions", "{{prescriptionId}}", "send-to-pharmacy"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctor",
+                "prescriptions",
+                "{{prescriptionId}}",
+                "send-to-pharmacy"
+              ]
             },
             "description": "Dispatches the prescription electronically to the clinic's pharmacy partner."
           }
@@ -454,8 +537,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/search?q=أحمد",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "search"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "search"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -484,8 +572,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ]
             },
             "description": "Fetches a patient's primary profile details."
           }
@@ -507,8 +600,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}/medical",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}", "medical"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "medical"
+              ]
             },
             "description": "Returns medical background info: documented drug allergies, chronic illnesses, and medical notes."
           }
@@ -530,8 +629,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "stats"
+              ]
             },
             "description": "Returns calculated visit metrics: total visits, first visit date, last visit date, and most frequent diagnosis."
           }
@@ -553,8 +658,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}/history",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}", "history"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "history"
+              ]
             },
             "description": "Retrieves the historical list of past prescriptions, diagnoses, and prescribed drugs."
           }
@@ -576,8 +687,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}/reminders",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}", "reminders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "reminders"
+              ]
             },
             "description": "Lists all scheduled follow-up reminders for this patient."
           }
@@ -608,8 +725,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/patients/{{patientId}}/reminders",
-              "host": ["{{baseUrl}}"],
-              "path": ["patients", "{{patientId}}", "reminders"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}",
+                "reminders"
+              ]
             },
             "description": "Schedules a patient reminder (presets: `tomorrow`, `week`, `month`, `custom`)."
           }
@@ -626,8 +749,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/bookings/capacity-check?date=2026-08-26",
-              "host": ["{{baseUrl}}"],
-              "path": ["bookings", "capacity-check"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "capacity-check"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -655,8 +783,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
             },
             "description": "Public online booking submitted by patients. Validates Egyptian mobile numbers, verifies capacity limits, and reserves a queue position."
           }
@@ -682,8 +814,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/ai/chat",
-              "host": ["{{baseUrl}}"],
-              "path": ["ai", "chat"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "chat"
+              ]
             },
             "description": "Conversational AI endpoint for patient chat. Ready to integrate Claude / LLM pipeline while storing conversation histories."
           }
@@ -695,8 +832,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/ai/patient-lookup?phone=01098765432",
-              "host": ["{{baseUrl}}"],
-              "path": ["ai", "patient-lookup"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "patient-lookup"
+              ],
               "query": [
                 {
                   "key": "phone",
@@ -715,8 +857,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/ai/availability",
-              "host": ["{{baseUrl}}"],
-              "path": ["ai", "availability"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "availability"
+              ]
             },
             "description": "Supplies the AI Agent with real-time operational capacity, working hours, and fees."
           }
@@ -733,8 +880,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/public/drugs?q=panadol",
-              "host": ["{{baseUrl}}"],
-              "path": ["public", "drugs"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "drugs"
+              ],
               "query": [
                 {
                   "key": "q",
@@ -753,8 +905,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/public/prescriptions/sample-qr-token-12345678",
-              "host": ["{{baseUrl}}"],
-              "path": ["public", "prescriptions", "sample-qr-token-12345678"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "prescriptions",
+                "sample-qr-token-12345678"
+              ]
             },
             "description": "Public patient-facing endpoint accessed when scanning the prescription QR code."
           }
@@ -780,8 +938,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/payments/create-intent",
-              "host": ["{{baseUrl}}"],
-              "path": ["payments", "create-intent"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "create-intent"
+              ]
             },
             "description": "Generates a reference code and instructions for InstaPay transfers."
           }
@@ -802,10 +965,246 @@
             },
             "url": {
               "raw": "{{baseUrl}}/payments/webhook",
-              "host": ["{{baseUrl}}"],
-              "path": ["payments", "webhook"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "webhook"
+              ]
             },
             "description": "Webhook endpoint for payment gateways. Updates booking status to `paid` and confirms appointment."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Patient Auth and Virtual Queue",
+      "item": [
+        {
+          "name": "Register Patient (with Firebase Phone Auth Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set(\"patientToken\", json.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"مريض تجريبي\",\n  \"mobile\": \"01012345678\",\n  \"age\": 28,\n  \"password\": \"password123\",\n  \"clinicCode\": \"el-nour\",\n  \"firebaseIdToken\": \"mock-valid-token\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient-auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient-auth",
+                "register"
+              ]
+            },
+            "description": "Registers patient after verifying mobile with Firebase Phone Auth (firebaseIdToken)."
+          }
+        },
+        {
+          "name": "Login Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set(\"patientToken\", json.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"01012345678\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient-auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient-auth",
+                "login"
+              ]
+            },
+            "description": "Patient login using mobile number and password. Auto-saves {{patientToken}}."
+          }
+        },
+        {
+          "name": "Get Virtual Queue Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient/queue-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "queue-status"
+              ]
+            },
+            "description": "Returns real-time queue position (inQueue, queueNumber, peopleAhead, estimatedWaitMinutes)."
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "bookings"
+              ]
+            },
+            "description": "Returns list of bookings for the logged-in patient."
+          }
+        },
+        {
+          "name": "Get My Prescriptions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient/prescriptions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "prescriptions"
+              ]
+            },
+            "description": "Returns prescription history for the logged-in patient."
+          }
+        },
+        {
+          "name": "Get My Medical Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient/medical-profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient",
+                "medical-profile"
+              ]
+            },
+            "description": "Returns allergies, chronic illnesses, and basic medical data for the patient."
+          }
+        },
+        {
+          "name": "Logout Patient",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{patientToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patient-auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patient-auth",
+                "logout"
+              ]
+            },
+            "description": "Logs out the patient session."
           }
         }
       ]

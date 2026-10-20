@@ -277,6 +277,19 @@ All response payloads adhere to standard consistent structures:
 | `POST` | `/api/payments/webhook` | Webhook | Handles InstaPay / Payment gateway callback |
 | `POST` | `/api/payments/create-intent` | Public / Auth | Generates payment reference / InstaPay payload |
 
+### 3.9. Patient Self-Service & Virtual Queue (`/patient-auth` & `/patient`)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/patient-auth/register` | Public | Register patient with Firebase Phone Auth (`firebaseIdToken` verification) |
+| `POST` | `/patient-auth/login` | Public | Login with mobile & password, returns JWT token + patient info |
+| `POST` | `/patient-auth/logout` | Authenticated | Logout patient session |
+| `GET` | `/patient/queue-status` | Patient Auth | Real-time virtual queue position (`inQueue`, `queueNumber`, `peopleAhead`, `estimatedWaitMinutes`) |
+| `GET` | `/patient/bookings` | Patient Auth | List patient's bookings |
+| `GET` | `/patient/prescriptions` | Patient Auth | List patient's digital prescriptions |
+| `GET` | `/patient/prescriptions/:id` | Patient Auth | Get single prescription details |
+| `GET` | `/patient/medical-profile` | Patient Auth | View personal medical background (allergies, chronic illnesses) |
+
+
 ---
 
 ## 4. Backend Implementation Checklist

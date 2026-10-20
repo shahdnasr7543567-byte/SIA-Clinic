@@ -9,7 +9,16 @@ export interface AuthenticatedUser {
   role: "admin" | "doctor" | "receptionist";
 }
 
+export interface AuthenticatedPatient {
+  id: string;
+  clinicId: Types.ObjectId;
+  mobile: string;
+  name: string;
+  role: "patient";
+}
+
 export interface AuthRequest extends Request {
   user?: AuthenticatedUser;
+  patient?: AuthenticatedPatient;
   clinicId?: Types.ObjectId;
 }
