@@ -1,6 +1,6 @@
-
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { usePatientAuthStore } from "@/store/patientAuthStore";
+import { PatientNavBar } from "@/components/patient/PatientNavBar";
 
 /**
  * Route guard for patient-only pages. Deliberately separate from
@@ -16,8 +16,10 @@ export function PatientProtectedRoute() {
     return <Navigate to="/patient/login" state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
-} 
-
-
-
+  return (
+    <>
+      <PatientNavBar />
+      <Outlet />
+    </>
+  );
+}
