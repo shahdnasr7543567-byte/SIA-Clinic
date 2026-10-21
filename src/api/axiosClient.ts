@@ -16,13 +16,19 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
-// Attach whichever session is active. Staff and patients are two separate
-// stores/tokens — a browser tab is expected to be logged in as one or the
-// other, never both at once, so prefer staff if present, else patient.
+// Staff and patients are two separate sessions/tokens. Pick the token by
+// the area of the app the user is in (not by "whichever exists"), so a
+// leftover staff token can never be sent from a patient page and vice versa.
+function isPatientArea(): boolean {
+  if (typeof window === "undefined") return false;
+  const path = window.location.pathname;
+  return path.startsWith("/patient") || path.startsWith("/register");
+}
+
 apiClient.interceptors.request.use((config) => {
-  const staffToken = useAuthStore.getState().token;
-  const patientToken = usePatientAuthStore.getState().token;
-  const token = staffToken ?? patientToken;
+  const token = isPatientArea()
+    ? usePatientAuthStore.getState().token
+    : useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,15 +36,13 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // A 401 means the session is no longer valid on the server — log out of
-// whichever session actually made the request and send the user to the
-// matching login page. Staff and patient sessions are never mixed here.
+// the session that belongs to the current area and send the user to the
+// matching login page.
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const isPatientSession = usePatientAuthStore.getState().isAuthenticated;
-
-      if (isPatientSession) {
+      if (isPatientArea()) {
         usePatientAuthStore.getState().logout();
         if (typeof window !== "undefined" && window.location.pathname !== "/patient/login") {
           window.location.assign("/patient/login");
@@ -52,4 +56,4 @@ apiClient.interceptors.response.use(
     }
     return Promise.reject(error);
   }
-); 
+);
