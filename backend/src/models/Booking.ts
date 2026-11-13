@@ -10,7 +10,7 @@ export interface IBooking extends Document {
   time: string; // HH:mm
   paymentMethod: "cash" | "instapay";
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  status: "confirmed" | "cancelled" | "completed";
+  status: "pending" | "confirmed" | "done" | "completed" | "cancelled";
   queueId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -46,7 +46,7 @@ const BookingSchema = new Schema<IBooking>(
     },
     status: {
       type: String,
-      enum: ["confirmed", "cancelled", "completed"],
+      enum: ["pending", "confirmed", "done", "completed", "cancelled"],
       default: "confirmed",
     },
     queueId: { type: Schema.Types.ObjectId, ref: "Queue" },

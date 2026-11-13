@@ -14,6 +14,7 @@ export interface AuthenticatedPatient {
   clinicId: Types.ObjectId;
   mobile: string;
   name: string;
+  age: number;
   role: "patient";
 }
 

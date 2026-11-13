@@ -136,6 +136,26 @@ export const getPatientStats = async (
       prescriptions[prescriptions.length - 1]?.createdAt.toISOString().split("T")[0] ||
       "—";
 
+    // Match the existing visit count: completed queue entries, or prescriptions
+    // as a fallback for older records without completed queue entries.
+    const visitDates = visits.length
+      ? visits.map((visit) => visit.visitDate)
+      : prescriptions.map((prescription) => prescription.createdAt.toISOString().slice(0, 10));
+    const monthlyCounts = new Map<string, number>();
+    for (const date of visitDates) {
+      const month = date.slice(0, 7);
+      monthlyCounts.set(month, (monthlyCounts.get(month) || 0) + 1);
+    }
+    const monthlyVisits = Array.from(monthlyCounts, ([month, visits]) => ({ month, visits }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+    let avgMonthlyVisits = 0;
+    if (monthlyVisits.length) {
+      const [firstYear, firstMonth] = monthlyVisits[0].month.split("-").map(Number);
+      const [lastYear, lastMonth] = monthlyVisits[monthlyVisits.length - 1].month.split("-").map(Number);
+      const months = (lastYear - firstYear) * 12 + lastMonth - firstMonth + 1;
+      avgMonthlyVisits = Math.round((totalVisits / months) * 100) / 100;
+    }
+
     // Calculate top diagnosis
     const diagnosisCounts: Record<string, number> = {};
     prescriptions.forEach((p) => {
@@ -158,6 +178,9 @@ export const getPatientStats = async (
       firstVisit,
       lastVisit,
       topDiagnosis,
+      prescriptionsCount: prescriptions.length,
+      avgMonthlyVisits,
+      monthlyVisits,
     });
   } catch (error) {
     next(error);

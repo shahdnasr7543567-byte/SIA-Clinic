@@ -30,7 +30,7 @@ export const authenticatePatient = async (
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, ENV.JWT_SECRET) as PatientJwtPayload;
 
-    if (!decoded.id || !Types.ObjectId.isValid(decoded.id)) {
+    if (decoded.role !== "patient" || !decoded.id || !Types.ObjectId.isValid(decoded.id)) {
       res.status(401).json({
         success: false,
         error: { message: "Invalid session token." },
@@ -52,6 +52,7 @@ export const authenticatePatient = async (
       clinicId: patient.clinicId,
       mobile: patient.mobile,
       name: patient.name,
+      age: patient.age,
       role: "patient",
     };
     req.clinicId = patient.clinicId;

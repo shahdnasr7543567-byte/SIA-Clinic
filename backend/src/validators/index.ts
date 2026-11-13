@@ -72,14 +72,17 @@ export const createPrescriptionSchema = z.object({
   notes: z.string().optional(),
 });
 
-export const onlineBookingSchema = z.object({
-  patientName: z.string().min(2, "Name is required"),
-  mobile: z.string().regex(egyptianPhoneRegex, "Valid Egyptian mobile number is required"),
-  age: z.coerce.number().int().min(0).max(120),
+export const authenticatedBookingSchema = z.object({
   examType: z.enum(["examination", "followup", "consultation"]).default("examination"),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   paymentMethod: z.enum(["cash", "instapay"]).default("cash"),
+});
+
+export const onlineBookingSchema = authenticatedBookingSchema.extend({
+  patientName: z.string().min(2, "Name is required"),
+  mobile: z.string().regex(egyptianPhoneRegex, "Valid Egyptian mobile number is required"),
+  age: z.coerce.number().int().min(0).max(120),
 });
 
 export const aiChatSchema = z.object({

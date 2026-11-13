@@ -12,7 +12,10 @@ export const createOnlineBooking = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { patientName, mobile, age, examType, date, time, paymentMethod } = req.body;
+    const { examType, date, time, paymentMethod } = req.body;
+    const patientName = req.patient?.name ?? req.body.patientName;
+    const mobile = req.patient?.mobile ?? req.body.mobile;
+    const age = req.patient?.age ?? req.body.age;
 
     // Resolve clinic ID (from tenant middleware)
     let clinicId = req.clinicId;
@@ -65,7 +68,13 @@ export const createOnlineBooking = async (
     }
 
     // Find or create patient
-    let patient = await Patient.findOne({ clinicId, mobile });
+    let patient = req.patient
+      ? await Patient.findOne({ _id: req.patient.id, clinicId })
+      : await Patient.findOne({ clinicId, mobile });
+    if (req.patient && !patient) {
+      res.status(401).json({ success: false, error: { message: "Patient session is invalid." } });
+      return;
+    }
     if (!patient) {
       patient = await Patient.create({
         clinicId,
