@@ -1,0 +1,814 @@
+{
+  "info": {
+    "_postman_id": "sia-clinic-api-v1",
+    "name": "SIA Clinic API Collection",
+    "description": "Comprehensive Postman collection with requests, example payloads, and automated token handling for SIA Clinic Management System (Express + TypeScript + MongoDB).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patientId",
+      "value": "66cb5d496a79e4d588000001",
+      "type": "string"
+    },
+    {
+      "key": "queueId",
+      "value": "66cb5d496a79e4d588000002",
+      "type": "string"
+    },
+    {
+      "key": "prescriptionId",
+      "value": "66cb5d496a79e4d588000003",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "66cb5d496a79e4d588000004",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the backend server and MongoDB connection are healthy."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login (Doctor / Admin / Receptionist)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('token', data.token);",
+                  "        console.log('Token automatically saved to collection variable: token');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"doctor@sia.clinic\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Logs in a user. Note: Automatically sets the `{{token}}` variable upon success.\n\nPre-seeded accounts:\n- Doctor: `doctor@sia.clinic` / `password123`\n- Receptionist: `reception@sia.clinic` / `password123`\n- Admin: `admin@sia.clinic` / `password123`"
+          }
+        },
+        {
+          "name": "Register New User / Clinic Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"د. كريم مصطفى\",\n  \"email\": \"kareem@sia.clinic\",\n  \"password\": \"password123\",\n  \"role\": \"doctor\",\n  \"specialty\": \"استشاري الأطفال وحديثي الولادة\",\n  \"phone\": \"01044445555\",\n  \"clinicCode\": \"el-nour\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Registers a new user and links them to an existing clinic or provisions a new clinic."
+          }
+        },
+        {
+          "name": "Get Current User Profile (/me)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Returns profile information for the currently authenticated token."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"doctor@sia.clinic\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            },
+            "description": "Initiates password reset instructions for a given email address."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logs out and destroys the user session."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Reception Module",
+      "item": [
+        {
+          "name": "Get Reception Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reception/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["reception", "stats"]
+            },
+            "description": "Returns real-time Reception dashboard counters (totalPatients, waiting, done, revenue)."
+          }
+        },
+        {
+          "name": "Get Today's Reception Queue",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reception/queue",
+              "host": ["{{baseUrl}}"],
+              "path": ["reception", "queue"]
+            },
+            "description": "Returns today's waiting list with queue numbers, patient details, priority badges, and visit statuses."
+          }
+        },
+        {
+          "name": "Add Patient to Queue (Check-in)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ياسر عبد الله خليل\",\n  \"mobile\": \"01012349876\",\n  \"age\": 38,\n  \"gender\": \"male\",\n  \"priority\": \"urgent\",\n  \"examType\": \"examination\",\n  \"notes\": \"شكوى من آلام شديدة بالمعدة\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reception/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["reception", "patients"]
+            },
+            "description": "Adds a patient into the daily queue. Enforces daily clinic capacity limits automatically."
+          }
+        },
+        {
+          "name": "Update Queue Status (Done / Cancelled)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"done\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reception/queue/{{queueId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reception", "queue", "{{queueId}}"]
+            },
+            "description": "Updates a queue entry status to `waiting`, `done`, or `cancelled`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Doctor Module",
+      "item": [
+        {
+          "name": "Get Doctor Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctor", "stats"]
+            },
+            "description": "Returns doctor-specific statistics (waiting patients, total prescriptions created, revenue)."
+          }
+        },
+        {
+          "name": "Get Doctor Queue (Priority Ordered)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/queue",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctor", "queue"]
+            },
+            "description": "Retrieves waiting patients sorted by priority (Critical first, then Urgent, then Normal)."
+          }
+        },
+        {
+          "name": "Create Digital Prescription",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"queueId\": \"{{queueId}}\",\n  \"diagnosis\": \"نزلة معوية حادة مع جفاف بسيط\",\n  \"drugs\": [\n    {\n      \"name\": \"Augmentin 1g\",\n      \"genericName\": \"Amoxicillin + Clavulanic Acid\",\n      \"form\": \"tablet\",\n      \"dosage\": \"قرص واحد\",\n      \"frequency\": \"كل 12 ساعة\",\n      \"duration\": \"7\",\n      \"unit\": \"days\",\n      \"instructions\": \"بعد الأكل مباشرة\"\n    },\n    {\n      \"name\": \"Panadol Extra 500mg\",\n      \"genericName\": \"Paracetamol + Caffeine\",\n      \"form\": \"tablet\",\n      \"dosage\": \"قرص عند اللزوم\",\n      \"frequency\": \"كل 8 ساعات\",\n      \"duration\": \"3\",\n      \"unit\": \"days\",\n      \"instructions\": \"عند ارتفاع درجة الحرارة\"\n    }\n  ],\n  \"notes\": \"الراحة التامة والإكثار من شرب السوائل والعصائر الطبيعية\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/doctor/prescriptions",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctor", "prescriptions"]
+            },
+            "description": "Creates a digital prescription with unique human-readable Rx ID, QR code verification token, and automatically updates the patient's queue entry to 'done'."
+          }
+        },
+        {
+          "name": "Get Prescription Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/prescriptions/{{prescriptionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctor", "prescriptions", "{{prescriptionId}}"]
+            },
+            "description": "Retrieves prescription details for printing or electronic viewing."
+          }
+        },
+        {
+          "name": "Send Prescription to Pharmacy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/doctor/prescriptions/{{prescriptionId}}/send-to-pharmacy",
+              "host": ["{{baseUrl}}"],
+              "path": ["doctor", "prescriptions", "{{prescriptionId}}", "send-to-pharmacy"]
+            },
+            "description": "Dispatches the prescription electronically to the clinic's pharmacy partner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Patient Management",
+      "item": [
+        {
+          "name": "Search Patients",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/search?q=أحمد",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "أحمد",
+                  "description": "Search keyword (name or Egyptian mobile number)"
+                }
+              ]
+            },
+            "description": "Searches registered patients across the clinic by name or mobile number."
+          }
+        },
+        {
+          "name": "Get Patient Profile by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}"]
+            },
+            "description": "Fetches a patient's primary profile details."
+          }
+        },
+        {
+          "name": "Get Patient Medical Info (Allergies & Chronic Diseases)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/medical",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}", "medical"]
+            },
+            "description": "Returns medical background info: documented drug allergies, chronic illnesses, and medical notes."
+          }
+        },
+        {
+          "name": "Get Patient Visit Analytics / Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}", "stats"]
+            },
+            "description": "Returns calculated visit metrics: total visits, first visit date, last visit date, and most frequent diagnosis."
+          }
+        },
+        {
+          "name": "Get Patient Prescription History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}", "history"]
+            },
+            "description": "Retrieves the historical list of past prescriptions, diagnoses, and prescribed drugs."
+          }
+        },
+        {
+          "name": "Get Patient Reminders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/reminders",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}", "reminders"]
+            },
+            "description": "Lists all scheduled follow-up reminders for this patient."
+          }
+        },
+        {
+          "name": "Create Patient Follow-up Reminder",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preset\": \"week\",\n  \"date\": \"2026-09-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}/reminders",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "{{patientId}}", "reminders"]
+            },
+            "description": "Schedules a patient reminder (presets: `tomorrow`, `week`, `month`, `custom`)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Public Online Booking",
+      "item": [
+        {
+          "name": "Check Date Booking Capacity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/capacity-check?date=2026-08-26",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "capacity-check"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-08-26",
+                  "description": "Date to check (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Public check to see if a date is open for appointments or full."
+          }
+        },
+        {
+          "name": "Submit Online Booking (No Login Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientName\": \"حسام حسن عثمان\",\n  \"mobile\": \"01099887766\",\n  \"age\": 34,\n  \"examType\": \"examination\",\n  \"date\": \"2026-08-26\",\n  \"time\": \"18:30\",\n  \"paymentMethod\": \"instapay\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            },
+            "description": "Public online booking submitted by patients. Validates Egyptian mobile numbers, verifies capacity limits, and reserves a queue position."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. AI Assistant & Knowledge",
+      "item": [
+        {
+          "name": "AI Chat Message (/ai/chat)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"عايز اعرف اسعار الكشف ومواعيد العيادة؟\",\n  \"sessionId\": \"sess-123456\",\n  \"phone\": \"01098765432\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ai/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["ai", "chat"]
+            },
+            "description": "Conversational AI endpoint for patient chat. Ready to integrate Claude / LLM pipeline while storing conversation histories."
+          }
+        },
+        {
+          "name": "AI Helper: Patient History Lookup by Phone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ai/patient-lookup?phone=01098765432",
+              "host": ["{{baseUrl}}"],
+              "path": ["ai", "patient-lookup"],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "01098765432",
+                  "description": "Patient mobile number"
+                }
+              ]
+            },
+            "description": "Allows the AI Agent to fetch registered patient medical context without requiring manual re-entry."
+          }
+        },
+        {
+          "name": "AI Helper: Clinic Slot & Price Availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ai/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["ai", "availability"]
+            },
+            "description": "Supplies the AI Agent with real-time operational capacity, working hours, and fees."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Public Verification & Catalog",
+      "item": [
+        {
+          "name": "Search Drugs Catalog (Autocomplete)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/drugs?q=panadol",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "drugs"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "panadol",
+                  "description": "Brand or Generic drug name query"
+                }
+              ]
+            },
+            "description": "Fast autocomplete drug search for the prescription builder and AI catalog."
+          }
+        },
+        {
+          "name": "Verify Prescription by QR / Hash",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/public/prescriptions/sample-qr-token-12345678",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "prescriptions", "sample-qr-token-12345678"]
+            },
+            "description": "Public patient-facing endpoint accessed when scanning the prescription QR code."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Payments & Webhooks",
+      "item": [
+        {
+          "name": "Create Payment Intent (InstaPay)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 250,\n  \"paymentMethod\": \"instapay\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/create-intent",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "create-intent"]
+            },
+            "description": "Generates a reference code and instructions for InstaPay transfers."
+          }
+        },
+        {
+          "name": "Payment Webhook Simulation (InstaPay Callback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"transactionId\": \"TXN-99887766\",\n  \"status\": \"success\",\n  \"paymentMethod\": \"instapay\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "webhook"]
+            },
+            "description": "Webhook endpoint for payment gateways. Updates booking status to `paid` and confirms appointment."
+          }
+        }
+      ]
+    }
+  ]
+}
