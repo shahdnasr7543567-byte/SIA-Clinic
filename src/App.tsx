@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
+import { PatientProtectedRoute } from "@/routes/PatientProtectedRoute";
 import { PageLoader } from "@/components/shared/PageLoader";
 
 // Every route is code-split with React.lazy: each page ships as its own
@@ -23,26 +24,40 @@ const PrescriptionBuilderPage = lazy(() => import("@/pages/doctor/PrescriptionBu
 const PatientSearchPage = lazy(() => import("@/pages/patient/PatientSearchPage"));
 const PatientProfilePage = lazy(() => import("@/pages/patient/PatientProfilePage"));
 const ChatPage = lazy(() => import("@/pages/ai-agent/ChatPage"));
+const PatientRegisterPage = lazy(() => import("@/pages/auth/PatientRegisterPage"));
+const PatientLoginPage = lazy(() => import("@/pages/auth/PatientLoginPage"));
+const PrescriptionVerifyPage = lazy(() => import("@/pages/public/PrescriptionVerifyPage"));
+const PatientPrescriptionsPage = lazy(() => import("@/pages/patient/PatientPrescriptionsPage"));
+const PatientBookingsPage = lazy(() => import("@/pages/patient/PatientBookingsPage"));
 
 export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Public routes */}
+        {/* Public routes — staff */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/book" element={<BookingPage />} />
         <Route path="/access-denied" element={<AccessDeniedPage />} />
+
+        {/* Public routes — patient (fully separate entry points from staff) */}
+        <Route path="/register/:clinicCode" element={<PatientRegisterPage />} />
+        <Route path="/patient/login" element={<PatientLoginPage />} />
+
+        {/* Public route — anyone with the link can verify/view a single
+            prescription (QR code / WhatsApp share target). No auth of any
+            kind — reads only what getPublicPrescription intentionally
+            exposes (no patient mobile, no internal ids). */}
+        <Route path="/rx/verify/:code" element={<PrescriptionVerifyPage />} />
+
         {/*
-          SECURITY: there is intentionally no /register route. Patients never
-          get a login account — their only touchpoints are /book (public, no
-          auth) and the AI Agent / WhatsApp. The old RegisterPage created a
-          real session with role "patient", and because staff routes below
-          didn't all pin allowedRoles explicitly, that session could reach
-          Reception/Doctor/Prescription screens. Every staff route now
-          whitelists roles explicitly as defense in depth — keep doing that
-          for any new route, even ones that "feel" safe without it.
+          SECURITY: patient accounts were removed once before (2026) after a
+          missing allowedRoles check let a patient session reach staff
+          screens. Staff and patients are two fully separate auth systems:
+          ProtectedRoute reads useAuthStore (staff) and MUST NEVER accept
+          "patient" in allowedRoles. PatientProtectedRoute reads its own
+          usePatientAuthStore and guards /patient/* only. Never share a
+          route, a login form, a register form, or a guard between them.
         */}
 
         {/* Protected app shell — staff only (any of the 3 real roles) */}
@@ -73,8 +88,16 @@ export default function App() {
           </Route>
         </Route>
 
+        {/* Patient-only routes — completely separate from staff, own guard */}
+        <Route element={<PatientProtectedRoute />}>
+        <Route path="/patient/dashboard" element={<Navigate to="/patient/bookings" replace />} />
+          <Route path="/patient/book" element={<BookingPage />} />
+          <Route path="/patient/prescriptions" element={<PatientPrescriptionsPage />} />
+          <Route path="/patient/bookings" element={<PatientBookingsPage />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );
-}
+} 

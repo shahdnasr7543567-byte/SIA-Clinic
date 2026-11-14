@@ -14,6 +14,16 @@ import {
   usePrescriptionHistory,
 } from "@/hooks/usePatientData";
 
+// شكل الروشتة زي ما بيرجع فعلاً من الباك (GET .../history):
+// الباك بيرجّع drugs (أسماء الأدوية) و drugsCount (العدد).
+interface HistoryItem {
+  id: string;
+  date: string;
+  diagnosis: string;
+  drugs?: string[];
+  drugsCount?: number;
+}
+
 export default function PatientProfilePage() {
   const { id = "" } = useParams();
   const { data: patient } = usePatientProfile(id);
@@ -22,6 +32,7 @@ export default function PatientProfilePage() {
   const { data: history, isLoading: historyLoading } = usePrescriptionHistory(id);
 
   const displayName = patient?.name ?? "مريض غير معروف";
+  const historyItems = (history ?? []) as unknown as HistoryItem[];
 
   return (
     <div className="flex flex-col gap-6">
@@ -93,12 +104,19 @@ export default function PatientProfilePage() {
               <div className="skeleton h-14" />
               <div className="skeleton h-14" />
             </div>
-          ) : history && history.length > 0 ? (
+          ) : historyItems.length > 0 ? (
             <ul className="flex flex-col gap-2">
-              {history.map((h) => (
+              {historyItems.map((h) => (
                 <li key={h.id} className="rounded-lg border border-border px-4 py-3 text-sm">
                   <span className="font-medium">{h.diagnosis}</span>
-                  <span className="text-muted-foreground"> — {h.date} — {h.drugCount} أدوية</span>
+                  <span className="text-muted-foreground"> — {h.date}</span>
+                  {h.drugs && h.drugs.length > 0 ? (
+                    <p className="mt-1 text-muted-foreground">{h.drugs.join("، ")}</p>
+                  ) : (
+                    <p className="mt-1 text-muted-foreground">
+                      {h.drugsCount ?? 0} أدوية
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
@@ -117,4 +135,4 @@ export default function PatientProfilePage() {
       </Tabs>
     </div>
   );
-}
+} 

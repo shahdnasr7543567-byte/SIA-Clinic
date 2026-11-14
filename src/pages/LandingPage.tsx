@@ -21,7 +21,7 @@ export default function LandingPage() {
 
       <div className="flex w-full max-w-xs flex-col gap-3">
         <Button asChild size="lg" className="w-full">
-          <Link to="/book">
+          <Link to="/patient/book">
             <CalendarPlus className="h-4 w-4" />
             احجز موعد
           </Link>
@@ -35,4 +35,4 @@ export default function LandingPage() {
       </div>
     </div>
   );
-}
+} 

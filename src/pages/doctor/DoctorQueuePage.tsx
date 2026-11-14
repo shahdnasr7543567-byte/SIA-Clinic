@@ -52,7 +52,7 @@ export default function DoctorQueuePage() {
                   </span>
                   <Button asChild size="sm">
                     <Link
-                      to={`/doctor/prescription/new?patientId=${p.patientId}&queueId=${p.id}&name=${encodeURIComponent(p.name)}&age=${p.age}`}
+                      to={`/doctor/prescription/new?patientId=${p.patientId}&queueId=${p.id}&name=${encodeURIComponent(p.name)}&age=${p.age}&mobile=${encodeURIComponent(p.mobile)}`}
                     >
                       بدء الكشف
                     </Link>

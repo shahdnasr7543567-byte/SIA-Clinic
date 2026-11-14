@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import toast from "react-hot-toast";
@@ -28,6 +28,7 @@ const roleHome: Record<UserRole, string> = {
   receptionist: "/reception",
   doctor: "/doctor",
   admin: "/admin",
+  patient: "/patient/dashboard",
 };
 
 export default function LoginPage() {
@@ -52,7 +53,7 @@ export default function LoginPage() {
       navigate(roleHome[user.role]);
     } catch (error) {
       const message = axios.isAxiosError(error) && error.response?.status === 401
-        ? "الإيميل أو كلمة المرور غلط"
+        ? "البريد الإلكتروني أو كلمة المرور غلط"
         : "حصل خطأ، حاول تاني";
       toast.error(message);
     }
@@ -69,10 +70,10 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">{t("auth.email")}</Label>
+              <Label htmlFor="email">البريد الإلكتروني</Label>
               <div className="relative">
                 <Mail className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input id="email" type="email" className="ps-9" placeholder="name@clinic.com" {...register("email")} />
+                <Input id="email" type="email" className="ps-9" placeholder="doctor@sia.clinic" {...register("email")} />
               </div>
               {errors.email && <p className="text-xs text-danger">{errors.email.message}</p>}
             </div>
@@ -80,9 +81,9 @@ export default function LoginPage() {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t("auth.password")}</Label>
-                <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                  {t("auth.forgotPassword")}
-                </Link>
+                {/* "Forgot password" link hidden until the backend actually sends
+                    reset emails (POST /auth/forgot-password is a stub for now).
+                    The /forgot-password page itself is kept for later. */}
               </div>
               <div className="relative">
                 <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

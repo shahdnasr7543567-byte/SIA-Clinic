@@ -1,3 +1,4 @@
+
 import { apiClient } from "@/api/axiosClient";
 import type { AuthUser, LoginPayload, RegisterPayload } from "@/types/auth";
 
@@ -6,6 +7,8 @@ export interface AuthResponse {
   token: string;
 }
 
+// Staff only (admin / doctor / receptionist). Patient auth lives in
+// patientAuth.api.ts on purpose — the two sessions are never mixed.
 export const authApi = {
   login: (payload: LoginPayload) =>
     apiClient.post<AuthResponse>("/auth/login", payload).then((r) => r.data),

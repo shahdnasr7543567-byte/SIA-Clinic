@@ -30,3 +30,10 @@ export interface Reminder {
   date: string;
   note?: string;
 }
+export interface MyMedicalProfile {
+  age: number;
+  bloodType?: string;
+  chronicDiseases: string[];
+  allergies: string[];
+} 
+

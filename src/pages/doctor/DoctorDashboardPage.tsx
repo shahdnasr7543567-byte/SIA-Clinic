@@ -1,16 +1,26 @@
 import { Link } from "react-router-dom";
-import { CalendarClock, Clock, UserCheck, CheckCircle2 } from "lucide-react";
+import { Clock, UserCheck, FileText, Wallet } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/StatCard";
+import { useDoctorQueue, useDoctorStats } from "@/hooks/useDoctorData";
+
+function StatCardSkeleton() {
+  return <div className="skeleton h-[76px] rounded-xl" />;
+}
 
 /**
- * /doctor — the doctor's landing page. Separate from /doctor/queue (the
- * existing DoctorQueuePage, unchanged). Static placeholder values until a
- * real doctor-stats endpoint exists.
+ * /doctor — the doctor's landing page. Numbers come from the real
+ * GET /doctor/stats and GET /doctor/queue endpoints.
  */
 export default function DoctorDashboardPage() {
+  const { data: stats, isLoading: statsLoading } = useDoctorStats();
+  const { data: queue, isLoading: queueLoading } = useDoctorQueue();
+
+  const waiting = queue?.length ?? 0;
+  const nextPatient = queue && queue.length > 0 ? queue[0].name : "—";
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -24,11 +34,21 @@ export default function DoctorDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* TODO(backend): replace static 0s with a real doctor stats endpoint */}
-        <StatCard label="مواعيد اليوم" value={0} icon={CalendarClock} tone="primary" />
-        <StatCard label="في الانتظار" value={0} icon={Clock} tone="warning" />
-        <StatCard label="المريض التالي" value="—" icon={UserCheck} tone="accent" />
-        <StatCard label="تم الكشف عليهم" value={0} icon={CheckCircle2} tone="primary" />
+        {queueLoading || statsLoading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard label="في الانتظار" value={waiting} icon={Clock} tone="warning" />
+            <StatCard label="المريض التالي" value={nextPatient} icon={UserCheck} tone="accent" />
+            <StatCard label="الروشتات المكتوبة" value={stats?.prescriptions ?? 0} icon={FileText} tone="primary" />
+            <StatCard label="إيراد اليوم" value={`${stats?.revenue ?? 0} ج.م`} icon={Wallet} tone="primary" />
+          </>
+        )}
       </div>
 
       <Card>

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { patientApi } from "@/api/endpoints/patient.api";
+import { patientPortalApi } from "@/api/endpoints/patientPortal.api";
 import type { ReminderPreset } from "@/types/patientProfile";
 
 export function usePatientSearch(query: string) {
@@ -40,5 +41,45 @@ export function useCreateReminder(patientId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients", patientId, "reminders"] });
     },
+  });
+}
+
+export function useMyPrescriptions() {
+  return useQuery({
+    queryKey: ["patient-portal", "prescriptions"],
+    queryFn: () => patientPortalApi.getMyPrescriptions(),
+  });
+}
+
+export function useMyPrescriptionById(id: string) {
+  return useQuery({
+    queryKey: ["patient-portal", "prescriptions", id],
+    queryFn: () => patientPortalApi.getPrescriptionById(id),
+    enabled: !!id,
+  });
+}
+
+export function useMyBookings() {
+  return useQuery({
+    queryKey: ["patient-portal", "bookings"],
+    queryFn: () => patientPortalApi.getMyBookings(),
+  });
+}
+
+// نفس فكرة تحديث طابور الطبيب (useDoctorQueue) — بيتحدث كل 15 ثانية لوحده
+// عشان المريض يشوف رقمه محدّث من غير ما يعمل refresh بنفسه.
+export function useQueueStatus() {
+  return useQuery({
+    queryKey: ["patient-portal", "queue-status"],
+    queryFn: () => patientPortalApi.getQueueStatus(),
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+  });
+}
+
+export function useMedicalProfile() {
+  return useQuery({
+    queryKey: ["patient-portal", "medical-profile"],
+    queryFn: () => patientPortalApi.getMyMedicalProfile(),
   });
 } 
