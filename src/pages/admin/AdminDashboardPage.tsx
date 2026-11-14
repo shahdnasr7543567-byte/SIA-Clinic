@@ -1,16 +1,22 @@
 import { Link } from "react-router-dom";
-import { CalendarClock, Users, Clock, Stethoscope } from "lucide-react";
+import { Users, Clock, CheckCircle2, Wallet } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/StatCard";
+import { useReceptionStats } from "@/hooks/useReceptionData";
+
+function StatCardSkeleton() {
+  return <div className="skeleton h-[76px] rounded-xl" />;
+}
 
 /**
- * Simple overview for admin — intentionally not a full analytics build.
- * Values are static placeholders (0) until the backend exposes an
- * admin-level stats endpoint; swap those in without touching the layout.
+ * Simple overview for admin. Reuses GET /reception/stats (the backend
+ * allows the admin role on it), so these are real numbers for today.
  */
 export default function AdminDashboardPage() {
+  const { data: stats, isLoading } = useReceptionStats();
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -19,11 +25,21 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* TODO(backend): replace static 0s with a real admin stats endpoint */}
-        <StatCard label="مواعيد اليوم" value={0} icon={CalendarClock} tone="primary" />
-        <StatCard label="مرضى اليوم" value={0} icon={Users} tone="accent" />
-        <StatCard label="في الانتظار" value={0} icon={Clock} tone="warning" />
-        <StatCard label="الأطباء النشطين" value={0} icon={Stethoscope} tone="primary" />
+        {isLoading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard label="مرضى اليوم" value={stats?.totalPatients ?? 0} icon={Users} tone="accent" />
+            <StatCard label="في الانتظار" value={stats?.waiting ?? 0} icon={Clock} tone="warning" />
+            <StatCard label="تم الكشف عليهم" value={stats?.done ?? 0} icon={CheckCircle2} tone="primary" />
+            <StatCard label="إيراد اليوم" value={`${stats?.revenue ?? 0} ج.م`} icon={Wallet} tone="primary" />
+          </>
+        )}
       </div>
 
       <Card>
@@ -44,9 +60,9 @@ export default function AdminDashboardPage() {
             <Link to="/reception/queue">قائمة الانتظار</Link>
           </Button>
           {/* NOTE: no Users-management page exists yet — add its Link here
-              once that page is built. Not stubbing a fake one now per brief. */}
+              once that page is built. */}
         </CardContent>
       </Card>
     </div>
   );
-}
+} 

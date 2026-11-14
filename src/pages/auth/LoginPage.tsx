@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import toast from "react-hot-toast";
@@ -81,9 +81,9 @@ export default function LoginPage() {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t("auth.password")}</Label>
-                <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                  {t("auth.forgotPassword")}
-                </Link>
+                {/* "Forgot password" link hidden until the backend actually sends
+                    reset emails (POST /auth/forgot-password is a stub for now).
+                    The /forgot-password page itself is kept for later. */}
               </div>
               <div className="relative">
                 <Lock className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -114,4 +114,4 @@ export default function LoginPage() {
       </Card>
     </div>
   );
-} 
+}
